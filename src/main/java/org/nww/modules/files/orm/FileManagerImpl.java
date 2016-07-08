@@ -178,8 +178,6 @@ public class FileManagerImpl
 		// first generate empty FileInformation object to gather a UUID
 		FileInformation fi = (FileInformation) save(createNew()).getAffectedObject();
 		
-		// check fi here -> gets stored 2x!! :((((
-		
 		// now set values / or fallbacks
 		fi.setName(!StringUtils.isEmpty(name) ? name : fi.getUUID());
 		fi.setOriginalName(originalName);

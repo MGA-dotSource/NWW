@@ -237,6 +237,13 @@ public class ProjectController extends AbstractApplicationController {
 		return TEMPLATE_CREATE_PROJECT;
 	}
 	
+	// for file upload search a nice file upload plugin
+	// upload via ajax on select the image
+	// upload into temp dir
+	// return whole FI object as JSON response
+	// copy from temp dir to project dir on save / edit -> edit could be difficult as files will already exist
+	// how to delete files? -> AJAX? with confirmation?
+	
 	/**
 	 * Save a new project.
 	 * @param form

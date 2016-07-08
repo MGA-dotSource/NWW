@@ -13,7 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
 /**
- *
+ * Validates a given ProjectForm and checks whether the given project name is allowed as project names
+ * have to be unique per user.
  * @author mga
  */
 public class UniqueNameValidator implements ConstraintValidator<UniqueName, ProjectForm> {
