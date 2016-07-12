@@ -3,6 +3,7 @@
  */
 package org.nww.modules.projects;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -10,16 +11,21 @@ import javax.validation.Valid;
 
 import org.nww.app.AbstractApplicationController;
 import org.nww.app.Constants;
+import org.nww.modules.files.orm.FileInformation;
+import org.nww.modules.files.orm.FileManager;
 import org.nww.modules.projects.orm.Project;
 import org.nww.modules.projects.orm.ProjectManager;
 import org.nww.modules.projects.orm.ProjectParticipantData;
 import org.nww.modules.projects.orm.ProjectSupplierData;
 import org.nww.modules.users.orm.User;
 import org.nww.services.web.URLUtilsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,6 +34,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -42,15 +50,19 @@ public class ProjectController extends AbstractApplicationController {
 	/**
 	 * 
 	 */
+	private static final String FILE_TYPE_IMAGE = "image";
 	private static final String PROJECT_NOT_FOUND = "PNF";
 	private static final String TEMPLATE_CREATE_PROJECT = "projects/createProject";
 	private static final String TEMPLATE_EDIT_PROJECT = "projects/editProject";
-	private static final String REDIRECT_AFTER_ADD_MODE_CREATE = "create";
-	private static final String REDIRECT_AFTER_ADD_MODE_EDIT = "edit";
+	private static final String MODE_CREATE = "create";
+	private static final String MODE_EDIT = "edit";
 	private static final String REDIRECT_TO_PROJECT_LIST = "redirect:/network/projects/";
 	
 	@Resource(name = "ProjectManager")
 	private ProjectManager projectMgr;
+	
+	@Autowired
+	private FileManager fileMgr;
 	
 	@Resource(name = "ProjectFormDataMapper")
 	private ProjectFormDataMapper mapper;
@@ -140,7 +152,7 @@ public class ProjectController extends AbstractApplicationController {
 		ProjectForm form = mapper.mapToForm(p);
 		
 		model.addAttribute("ProjectForm", form);
-		model.addAttribute("mode", REDIRECT_AFTER_ADD_MODE_EDIT);
+		model.addAttribute("mode", MODE_EDIT);
 		
 		return TEMPLATE_EDIT_PROJECT;
 	}
@@ -153,14 +165,14 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/addParticipant.do", method = RequestMethod.POST)
-	public String addParticipant(
+	public String addParticipantDo(
 			@ModelAttribute("ProjectForm") ProjectForm form, 
-			@RequestParam(required = false, defaultValue = REDIRECT_AFTER_ADD_MODE_CREATE) String mode,
+			@RequestParam(required = false, defaultValue = MODE_CREATE) String mode,
 			Model model) {
 		
 		form.getParticipants().add(0, new ProjectParticipantData());
 		
-		if(REDIRECT_AFTER_ADD_MODE_EDIT.equals(mode)) {
+		if(MODE_EDIT.equals(mode)) {
 			return TEMPLATE_EDIT_PROJECT;
 		}
 		
@@ -176,15 +188,15 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/removeParticipant.do", method = RequestMethod.POST)
-	public String removeParticipant(
+	public String removeParticipantDo(
 			@ModelAttribute("ProjectForm") ProjectForm form,
 			@RequestParam(required = true) Integer removeIndex,
-			@RequestParam(required = false, defaultValue = REDIRECT_AFTER_ADD_MODE_CREATE) String mode,
+			@RequestParam(required = false, defaultValue = MODE_CREATE) String mode,
 			Model model) {
 		
 		form.getParticipants().remove((int)removeIndex);
 		
-		if(REDIRECT_AFTER_ADD_MODE_EDIT.equals(mode)) {
+		if(MODE_EDIT.equals(mode)) {
 			return TEMPLATE_EDIT_PROJECT;
 		}
 		
@@ -199,14 +211,14 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/addSupplier.do", method = RequestMethod.POST)
-	public String addSupplier(
+	public String addSupplierDo(
 			@ModelAttribute("ProjectForm") ProjectForm form,
-			@RequestParam(required = false, defaultValue = REDIRECT_AFTER_ADD_MODE_CREATE) String mode,
+			@RequestParam(required = false, defaultValue = MODE_CREATE) String mode,
 			Model model) {
 		
 		form.getSuppliers().add(0, new ProjectSupplierData());
 		
-		if(REDIRECT_AFTER_ADD_MODE_EDIT.equals(mode)) {
+		if(MODE_EDIT.equals(mode)) {
 			return TEMPLATE_EDIT_PROJECT;
 		}
 		
@@ -222,15 +234,15 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/removeSupplier.do", method = RequestMethod.POST)
-	public String removeSupplier(
+	public String removeSupplierDo(
 			@ModelAttribute("ProjectForm") ProjectForm form,
 			@RequestParam(required = true) Integer removeIndex,
-			@RequestParam(required = false, defaultValue = REDIRECT_AFTER_ADD_MODE_CREATE) String mode,
+			@RequestParam(required = false, defaultValue = MODE_CREATE) String mode,
 			Model model) {
 		
 		form.getSuppliers().remove((int)removeIndex);
 		
-		if(REDIRECT_AFTER_ADD_MODE_EDIT.equals(mode)) {
+		if(MODE_EDIT.equals(mode)) {
 			return TEMPLATE_EDIT_PROJECT;
 		}
 		
@@ -243,6 +255,25 @@ public class ProjectController extends AbstractApplicationController {
 	// return whole FI object as JSON response
 	// copy from temp dir to project dir on save / edit -> edit could be difficult as files will already exist
 	// how to delete files? -> AJAX? with confirmation?
+
+	@RequestMapping(value = "/uploadFile.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+	@ResponseBody
+	public ResponseEntity<? extends FileInformation> uploadFileDo(@RequestParam(name = "type", required = false, defaultValue = FILE_TYPE_IMAGE) String type,
+			@RequestParam(name = "file", required = true) MultipartFile file,
+			@ModelAttribute("ProjectForm") ProjectForm form,
+			@RequestParam(required = false, defaultValue = MODE_CREATE) String mode) {
+		
+		// support only image uploads currently
+		if(FILE_TYPE_IMAGE.equals(type)) {
+			try {
+				return new ResponseEntity<FileInformation>(fileMgr.saveFile(fileMgr.getTemp(), file.getBytes(), file.getContentType()), HttpStatus.OK);
+			} catch (IOException e) {
+				// TODO: add logging
+			}
+		}
+		
+		return ResponseEntity.badRequest().body(null);
+	}
 	
 	/**
 	 * Save a new project.

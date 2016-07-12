@@ -83,6 +83,13 @@ public class ProjectFileData {
 		this.description = description;
 	}
 	
+	/**
+	 * @return true if there is a valid file information objectd attached
+	 */
+	public boolean hasFileInformation() {
+		return null != getFileInformation();
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */

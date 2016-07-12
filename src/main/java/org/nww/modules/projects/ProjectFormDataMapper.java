@@ -35,7 +35,7 @@ public class ProjectFormDataMapper implements FormDataMapper<ProjectForm, Projec
 		f.setLocation(p.getLocation());
 		f.setParticipants(p.getParticipants());
 		f.setSuppliers(p.getSuppliers());
-		f.setGallery(p.getImages());
+		f.setImages(p.getImages());
 		
 		return f;
 	}
@@ -65,7 +65,7 @@ public class ProjectFormDataMapper implements FormDataMapper<ProjectForm, Projec
 		p.setLocation(f.getLocation());
 		p.setParticipants(f.getParticipants());
 		p.setSuppliers(f.getSuppliers());
-		p.setImages(f.getGallery());
+		p.setImages(f.getImages());
 		
 		return p;
 	}

@@ -201,3 +201,27 @@
 <!--/*
 	END DATE INPUT
 */-->
+<!--/*
+    START TEXT INPUT 
+*/-->
+<th:block th:fragment="inputFile (Name, Label, LblClass, InputClass, Required)">
+	<label th:class="${LblClass}" th:classappend="${#fields.hasErrors(__'\'' + ${Name} + '\''__)} ? ' error'">
+		<strong th:text="${Label}" th:if="${Required}">lbl</strong>
+		<span th:text="${Label}" th:unless="${Required}">lbl</span>
+	</label>	
+	<div th:class="${InputClass}">
+        <input class="form-control" type="file" 
+        		th:classappend="${#fields.hasErrors(__'\'' + ${Name} + '\''__)} ? ' error'"
+        		th:field="*{__${Name}__}" 
+        		th:title="${Label}" 
+        		th:required="${Required != null AND Required}" />
+        <div class="alert alert-danger attached" role="alert" th:if="${#fields.hasErrors(__'\'' + ${Name} + '\''__)}">
+            <ul>
+                <li th:each="err : ${#fields.errors(__'\'' + ${Name} + '\''__)}" th:utext="${err}" />
+            </ul>
+        </div>
+	</div>
+</th:block>
+<!--/*
+    END TEXT INPUT 
+*/-->

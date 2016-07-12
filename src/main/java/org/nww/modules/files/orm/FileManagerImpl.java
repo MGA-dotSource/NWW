@@ -76,6 +76,14 @@ public class FileManagerImpl
 	public String getRoot() {
 		return this.nwwVfsRootPropertyValue;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.files.orm.FileManager#getTemp()
+	 */
+	@Override
+	public String getTemp() {
+		return "temp";
+	}
 
 	/* (non-Javadoc)
 	 * @see org.nww.orm.files.FileManager#findByLocalPath(java.lang.String)

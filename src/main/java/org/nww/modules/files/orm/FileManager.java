@@ -22,6 +22,13 @@ public interface FileManager extends PersistentObjectManager<FileInformation, Fi
 	public String getRoot();
 	
 	/**
+	 * @return the file system temporary path
+	 */
+	public String getTemp();
+	
+	// TODO: cleanup temp files after a 2 or 3 days
+	
+	/**
 	 * Find the file information for the passed local path.
 	 * @param localPath the local path
 	 * @param name the virtual file name
