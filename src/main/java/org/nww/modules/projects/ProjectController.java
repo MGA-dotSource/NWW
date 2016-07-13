@@ -14,6 +14,7 @@ import org.nww.app.Constants;
 import org.nww.modules.files.orm.FileInformation;
 import org.nww.modules.files.orm.FileManager;
 import org.nww.modules.projects.orm.Project;
+import org.nww.modules.projects.orm.ProjectFileData;
 import org.nww.modules.projects.orm.ProjectManager;
 import org.nww.modules.projects.orm.ProjectParticipantData;
 import org.nww.modules.projects.orm.ProjectSupplierData;
@@ -273,6 +274,15 @@ public class ProjectController extends AbstractApplicationController {
 		}
 		
 		return ResponseEntity.badRequest().body(null);
+	}
+	
+	@RequestMapping(value = "/newFileDataEntry", params = { "fi" }, method = RequestMethod.GET)
+	public String newFileDataEntry(@PathVariable("fi") String fileInformationUUID, Model model) {
+		ProjectFileData pfd = new ProjectFileData(fileInformationUUID, null);
+		
+		model.addAttribute("FileData", pfd);
+		
+		return "projects/inc/newFileDataEntry";
 	}
 	
 	/**

@@ -1,0 +1,20 @@
+<tr>
+	<td>
+		preview image
+	</td>
+	<td th:text="${FileData.FileInformation.Name}">
+	</td>
+	<td>
+		<div>
+        	<input class="form-control" type="text" maxlength="250" 
+        			id="Images$$COUNTER$$.Description" 
+        			name="Images[$$COUNTER$$].Description" 
+       				th:value="${FileData.Description}" autocomplete="off">
+		</div>
+	</td>
+	<td>
+		<button class="btn btn-white">
+			<i class="fa fa-trash"></i> 
+		</button>
+	</td>
+</tr>

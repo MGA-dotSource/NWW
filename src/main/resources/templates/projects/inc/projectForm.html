@@ -261,7 +261,8 @@
 					</div>
 					<div class="row m-b-md">
 						<div class="col-xs-12">
-							<div id="dropzone" class="dropzone dz-clickable" th:attr="data-upload-url=@{/network/projects/uploadFile.do}">
+							<div id="dropzone" class="dropzone dz-clickable" 
+									th:attr="data-upload-url=@{/network/projects/uploadFile.do}, data-new-data-url=@{/network/projects/newFileDataEntry}">
 	                            <div class="dropzone-previews"></div>
 		                        <div class="dz-default dz-message">
 		                        	<span>Dateien hier hin ziehen oder klicken zum Auswählen</span>
