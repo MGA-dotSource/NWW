@@ -1,19 +1,23 @@
-<tr>
+<tr th:attr="data-file-uuid=${FileData.FileInformationUUID}">
 	<td>
-		preview image
+		<img th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(FileData.FileInformationUUID)} + '_150'__}" />
 	</td>
 	<td th:text="${FileData.FileInformation.Name}">
 	</td>
 	<td>
 		<div>
+			<input type="hidden" th:name="'Images[' + ${CounterValue} + '].fileInformationUUID'" 
+					th:id="'Images' + ${CounterValue} + '.fileInformationUUID'"
+					th:value="${FileData.FileInformationUUID}"/>
         	<input class="form-control" type="text" maxlength="250" 
-        			id="Images$$COUNTER$$.Description" 
-        			name="Images[$$COUNTER$$].Description" 
-       				th:value="${FileData.Description}" autocomplete="off">
+        			th:id="'Images' + ${CounterValue} + '.Description'" 
+        			th:name="'Images[' + ${CounterValue} + '].Description'" 
+       				th:value="${FileData.Description}" autocomplete="off" />
 		</div>
 	</td>
 	<td>
-		<button class="btn btn-white">
+		<button name="btnRemoveImage" type="button" class="btn btn-white" 
+				th:attr="data-ref=${FileData.FileInformationUUID}, data-url=@{/network/projects/removeFile.do}">
 			<i class="fa fa-trash"></i> 
 		</button>
 	</td>

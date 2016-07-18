@@ -241,21 +241,9 @@
 								</tr>
 							</thead>
 							<tbody>
-								<tr th:each="imageData, stat : *{Images}">
-									<td>
-										preview image
-									</td>
-									<td th:text="${imageData.FileInformation.Name}">
-									</td>
-									<td>
-										<th:block th:replace="common/formFragments :: inputText('Images[' + __${stat.index}__ + '].Description', '', 250,'hidden-xs hidden-sm hidden-md hidden-lg', '', false)"></th:block>
-									</td>
-									<td>
-										<button class="btn btn-white">
-											<i class="fa fa-trash"></i> 
-										</button>
-									</td>
-								</tr>
+								<th:block th:each="FileData, stat : *{Images}" th:with="CounterValue = ${stat.index}">
+									<tr th:replace="projects/inc/newFileDataEntry"></tr>
+								</th:block>
 							</tbody>
 						</table>
 					</div>

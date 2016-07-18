@@ -155,7 +155,7 @@ public class FileController extends AbstractController {
 					: imageFileService.resizeImage(imageFileService.getImageFromFile(getFileMgr().getFile(orig)), width);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(resizedImage, ImageIO.getImageReadersByMIMEType(orig.getContentType()).next().getFormatName() , baos);
-			resizedOrig = getFileMgr().saveFile("profiles", baos.toByteArray(), orig.getContentType());
+			resizedOrig = getFileMgr().saveFile(orig.getLocalPath(), baos.toByteArray(), orig.getContentType());
 			
 			// update original file info
 			orig.setString(createSizedImageAttributeName(fri), resizedOrig.getUUID());

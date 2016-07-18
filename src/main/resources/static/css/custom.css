@@ -188,3 +188,17 @@ pre.company-description {
 .nww-dz-clickable {
 	min-height: 310px;
 }
+.dz-preview {
+	display: none !important;
+}
+.dropzone.dz-started .dz-message {
+	opacity: 1 !important;
+}
+#dropzone.dropzone .dz-default.dz-message {
+	background-image: none;
+	width: 450px;
+}
+#dropzone.dropzone .dz-default.dz-message span {
+	display: block;
+    font-size: 1.4em;
+}

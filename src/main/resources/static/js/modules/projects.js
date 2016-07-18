@@ -1,3 +1,5 @@
+var imageDataRowCount = $('#images tbody tr').size();
+
 $(document).ready(function() {
 	$('.input-group.date').datepicker({
         todayBtn: "linked",
@@ -11,6 +13,14 @@ $(document).ready(function() {
 	$('button[data-form-submit-action]').click(function() {
 		var newFormAction = $(this).attr('data-form-submit-action');
 		$(this).parentsUntil('form').parent().attr('action', newFormAction);
+	});
+	
+	$('#images').on('click', 'button[name="btnRemoveImage"]', function() {
+		var fileUUID = $(this).attr('data-ref');
+		$.post($(this).attr('data-url'), { 'fileUUID' : fileUUID }, function() {
+			// success -> remove file display
+			$('tr[data-file-uuid="' + fileUUID + '"]').remove();
+		});
 	});
 	
 	Dropzone.autoDiscover = false;
@@ -32,8 +42,9 @@ $(document).ready(function() {
 			});
 			this.on("success", function(file, response) {
 				// load file data input area for uploaded file
-				$.get($('#dropzone').attr('data-new-data-url') + '?' + response.fileInformationUUID, function(html) {
+				$.get($('#dropzone').attr('data-new-data-url') + '?fi=' + response.uuid + "&c=" + imageDataRowCount++, function(html) {
 					var table = $('#images');
+					
 					if(table.find('tbody tr').size() > 0) {
 						// append after existing elements
 						table.find('tbody tr:last').after(html);
@@ -42,6 +53,9 @@ $(document).ready(function() {
 						// insert as first row
 						table.find('tbody').html(html);
 					}
+					
+					// clear preview area
+					$('.dz-preview').remove();
 				});
 			});
 			this.on("error", function(file, response) {

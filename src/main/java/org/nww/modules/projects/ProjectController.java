@@ -267,7 +267,9 @@ public class ProjectController extends AbstractApplicationController {
 		// support only image uploads currently
 		if(FILE_TYPE_IMAGE.equals(type)) {
 			try {
-				return new ResponseEntity<FileInformation>(fileMgr.saveFile(fileMgr.getTemp(), file.getBytes(), file.getContentType()), HttpStatus.OK);
+				return new ResponseEntity<FileInformation>(
+						// first parameter is file name that should be set automatically
+						fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getTemp(), file.getBytes(), file.getContentType()), HttpStatus.OK);
 			} catch (IOException e) {
 				// TODO: add logging
 			}
@@ -276,11 +278,28 @@ public class ProjectController extends AbstractApplicationController {
 		return ResponseEntity.badRequest().body(null);
 	}
 	
-	@RequestMapping(value = "/newFileDataEntry", params = { "fi" }, method = RequestMethod.GET)
-	public String newFileDataEntry(@PathVariable("fi") String fileInformationUUID, Model model) {
-		ProjectFileData pfd = new ProjectFileData(fileInformationUUID, null);
+	@RequestMapping(value = "/removeFile.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
+	@ResponseBody
+	public ResponseEntity<String> removeFileDo(@RequestParam(name = "fileUUID") String fileUUID) {
+		
+		FileInformation fi = fileMgr.findOne(fileUUID);
+		
+		if(null == fi || !fileMgr.existsFile(fi) || fileMgr.deleteFile(fi)) {
+			return ResponseEntity.ok(null);			
+		}
+		
+		return ResponseEntity.badRequest().body(null);
+	}
+	
+	@RequestMapping(value = "/newFileDataEntry", params = { "fi", "c" }, method = RequestMethod.GET)
+	public String newFileDataEntry(
+			@RequestParam String fi, 
+			@RequestParam Integer c, 
+			Model model) {
+		ProjectFileData pfd = new ProjectFileData(fi, null);
 		
 		model.addAttribute("FileData", pfd);
+		model.addAttribute("CounterValue", c);
 		
 		return "projects/inc/newFileDataEntry";
 	}
