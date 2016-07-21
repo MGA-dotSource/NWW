@@ -45,9 +45,12 @@ public class ProjectFormDataMapper implements FormDataMapper<ProjectForm, Projec
 	 */
 	@Override
 	public Project mapToPersistentObject(ProjectForm form) {
-		Project p = projectMgr.createNew();
+		Project p = mapToExistingPersistentObject(form, projectMgr.createNew());
 		
-		return mapToExistingPersistentObject(form, p);
+		// force UUID creation by the database
+		p.setUUID(null);
+		
+		return p;
 	}
 
 	/* (non-Javadoc)

@@ -26,7 +26,24 @@ public interface FileManager extends PersistentObjectManager<FileInformation, Fi
 	 */
 	public String getTemp();
 	
-	// TODO: cleanup temp files after a 2 or 3 days
+	/**
+	 * @return the file system shared path
+	 */
+	public String getShared();
+	
+	/**
+	 * Check if the file with the passed file information UUID is located in the current temporary directory.
+	 * @param uuid the file information UUID
+	 * @return true if it is in the current temporary folder
+	 */
+	public boolean isFileInTemp(String uuid);
+	
+	/**
+	 * Check if the file is located in the current temporary directory.
+	 * @param fi the file information object
+	 * @return true if it is in the current temporary folder
+	 */
+	public boolean isFileInTemp(FileInformation fi);
 	
 	/**
 	 * Find the file information for the passed local path.

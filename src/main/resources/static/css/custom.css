@@ -202,3 +202,7 @@ pre.company-description {
 	display: block;
     font-size: 1.4em;
 }
+.project-preview-img {
+	max-width: 150px;
+	max-height: 75px;
+}

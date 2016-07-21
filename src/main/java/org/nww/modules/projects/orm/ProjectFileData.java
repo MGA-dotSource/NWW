@@ -107,9 +107,9 @@ public class ProjectFileData {
 	 */
 	@Override
 	public boolean equals(Object o) {
-		if(o instanceof ProjectSupplierData) {
+		if(o instanceof ProjectFileData) {
 			ProjectFileData other = (ProjectFileData) o;
-			return other.getFileInformation().equals(this.getFileInformation()) && other.getDescription().equals(this.getDescription());
+			return other.getFileInformationUUID().equals(this.getFileInformationUUID());
 		}
 		
 		return false;

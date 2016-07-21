@@ -105,6 +105,14 @@ public abstract class AbstractExtensiblePersistentObject extends
     }
 
     /* (non-Javadoc)
+     * @see org.nww.core.data.ExtensiblePersistentObject#getExtensions()
+     */
+    @Override
+    public List<? extends ObjectExtension> getExtensions() {
+    	return this.extensions;
+    }
+    
+    /* (non-Javadoc)
      * @see org.sunrise.core.data.ExtensiblePersistentObject#getString(java.lang.String)
      */
     @Override

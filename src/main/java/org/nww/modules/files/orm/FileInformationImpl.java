@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
  */
 @Document(collection = "files")
 public class FileInformationImpl extends AbstractExtensiblePersistentObject implements FileInformation {
-
 	private String name;
 	private String originalName;
 	private String localPath;

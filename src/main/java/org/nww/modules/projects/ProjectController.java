@@ -48,9 +48,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping(value = "/network/projects")
 public class ProjectController extends AbstractApplicationController {
 	
-	/**
-	 * 
-	 */
 	private static final String FILE_TYPE_IMAGE = "image";
 	private static final String PROJECT_NOT_FOUND = "PNF";
 	private static final String TEMPLATE_CREATE_PROJECT = "projects/createProject";
@@ -142,7 +139,6 @@ public class ProjectController extends AbstractApplicationController {
 		
 		Project p = projectMgr.findByNameAndOwner(urlUtils.decodeURLSegments(projectName), getUserManager().findByUsername(userName));
 		
-		// product exists and credentials check credentials
 		// TODO: handle failed credentials separatly
 		User current = populateCurrentUser();
 		if(null == p || !current.isAdmin() || !current.equals(p.getOwner())) {
@@ -250,12 +246,7 @@ public class ProjectController extends AbstractApplicationController {
 		return TEMPLATE_CREATE_PROJECT;
 	}
 	
-	// for file upload search a nice file upload plugin
-	// upload via ajax on select the image
-	// upload into temp dir
-	// return whole FI object as JSON response
 	// copy from temp dir to project dir on save / edit -> edit could be difficult as files will already exist
-	// how to delete files? -> AJAX? with confirmation?
 
 	@RequestMapping(value = "/uploadFile.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
 	@ResponseBody
@@ -278,19 +269,48 @@ public class ProjectController extends AbstractApplicationController {
 		return ResponseEntity.badRequest().body(null);
 	}
 	
+	/**
+	 * Removes a file information object and its attached file.
+	 * Is intended to be called via ajax.
+	 * @param fileUUID the UUID of the file information object to be deleted
+	 * @return empty HTTP status responses (200 or 400)
+	 */
 	@RequestMapping(value = "/removeFile.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
 	@ResponseBody
 	public ResponseEntity<String> removeFileDo(@RequestParam(name = "fileUUID") String fileUUID) {
 		
+		// file deletion will not really delete the file because from here we cannot update the project
+		// to remove the file information there
+		// instead we move the file (and all its possible resized ones) to the temp folder were it will be deleted later
+		// by the cleanup scheduler
+		
 		FileInformation fi = fileMgr.findOne(fileUUID);
 		
-		if(null == fi || !fileMgr.existsFile(fi) || fileMgr.deleteFile(fi)) {
+		if(null == fi || !fileMgr.existsFile(fi)) {
 			return ResponseEntity.ok(null);			
 		}
+		
+		// preconditions fulfilled -> move the file
+		fileMgr.moveFile(fi, fileMgr.getTemp());
+		// move possible resized images too
+		fi.getExtensions().stream()
+				.filter(ext -> ext.getName().startsWith("resized_"))
+				.map(ext -> fileMgr.findOne(ext.getString()))
+				.filter(fileInformation -> null != fileInformation)
+				.forEach(fileInformation -> fileMgr.moveFile(fileInformation, fileMgr.getTemp()));
 		
 		return ResponseEntity.badRequest().body(null);
 	}
 	
+	/**
+	 * Return a file data entry snippet rendered with the passed file information object found 
+	 * for the passed UUID.
+	 * @param fi the file information UUID of the object that should be rendered
+	 * @param c the counter of this entries inputs - as the whole file upload methods is internally handled by a
+	 * list of {@link ProjectFileData} elements these have to be counted for input fields.
+	 * @param model
+	 * @return the rendered snippets HTML code
+	 */
 	@RequestMapping(value = "/newFileDataEntry", params = { "fi", "c" }, method = RequestMethod.GET)
 	public String newFileDataEntry(
 			@RequestParam String fi, 
@@ -319,6 +339,11 @@ public class ProjectController extends AbstractApplicationController {
 			RedirectAttributes redirectAttributes, Model model) {
 		
 		if(!bindingResult.hasErrors()) {
+			// copy all files that are in temp to shared			
+			form.getImages().stream()
+					.filter(pfd -> fileMgr.isFileInTemp(pfd.getFileInformation()))
+					.forEach(pfd -> fileMgr.moveFile(pfd.getFileInformation(), fileMgr.getShared()));
+			
 			projectMgr.save(mapper.mapToPersistentObject(form));
 			
 			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PCS");
@@ -343,8 +368,36 @@ public class ProjectController extends AbstractApplicationController {
 			RedirectAttributes redirectAttributes,
 			Model model) {
 		
+		Project toEdit = projectMgr.findOne(form.getUUID());
+		
+		if(null == toEdit) {
+			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
+			return REDIRECT_TO_PROJECT_LIST;
+		}
+		
 		if(!bindingResult.hasErrors()) {
-			projectMgr.save(mapper.mapToPersistentObject(form));
+			// remove files that are in the toEdit project but are no more in the form to be saved
+			toEdit.getImages().stream()
+					.filter(fileData -> !form.getImages().contains(fileData))
+					.forEach(fileData -> {
+						FileInformation fi = fileData.getFileInformation();
+						// remove possible resized files
+						fi.getExtensions().stream()
+								.filter(ext -> ext.getName().startsWith("resized_")) // find files via extensions
+								.map(ext -> fileMgr.findOne(ext.getString())) // map from UUID extendsion string value to FileInformation
+								.filter(file -> null != file) // filter null values
+								.forEach(file -> fileMgr.deleteFile(file)); // delete
+						// remove file itself
+						fileMgr.deleteFile(fi);
+					});
+
+			// copy all files that are left in temp to shared			
+			form.getImages().stream()
+					.filter(pfd -> fileMgr.isFileInTemp(pfd.getFileInformation()))
+					.forEach(pfd -> fileMgr.moveFile(pfd.getFileInformation(), fileMgr.getShared()));
+			
+			
+			projectMgr.save(mapper.mapToExistingPersistentObject(form, toEdit));
 			
 			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PES");
 			return REDIRECT_TO_PROJECT_LIST;

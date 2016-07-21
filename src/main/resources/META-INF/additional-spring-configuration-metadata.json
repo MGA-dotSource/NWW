@@ -43,5 +43,10 @@
     "name": "nww.tour.enabled",
     "type": "java.lang.Boolean",
     "description": "Enable or disable the tour feature."
+  },
+  {
+    "name": "nww.vfs.temp",
+    "type": "java.lang.String",
+    "description": "The virtual file system path for temporary files."
   }
 ]}

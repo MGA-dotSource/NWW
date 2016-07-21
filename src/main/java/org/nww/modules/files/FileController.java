@@ -20,7 +20,6 @@ import org.nww.modules.files.orm.FileManager;
 import org.nww.services.files.ImageFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -45,9 +44,6 @@ public class FileController extends AbstractController {
 	
 	@Resource(name = "ImageFileService")
 	private ImageFileService imageFileService;
-	
-	@Value("${nww.vfs.shared}")
-	private String sharedFolderName;
 	
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
@@ -96,7 +92,7 @@ public class FileController extends AbstractController {
 			FileInformation fi = null;
 			
 			try {
-				fi = fileMgr.saveFile(sharedFolderName, file.getBytes(), file.getContentType());
+				fi = fileMgr.saveFile(fileMgr.getShared(), file.getBytes(), file.getContentType());
 
 				return new FileUploadResult(true, fileMgr.createAbsoluteDownloadUrl(fi));
 			} catch (IOException e) {
@@ -108,6 +104,12 @@ public class FileController extends AbstractController {
 	}
 
 	private FileInformation getOrCreateResizedImage(FileRequestInformation fri, FileInformation purFileInfo) {
+		
+		// files in temp will never be resized
+		if(fileMgr.isFileInTemp(purFileInfo)) {
+			return purFileInfo;
+		}
+		
 		if(imageFileService.isImageFile(purFileInfo) && fri.getAttributeCount() >= 1) {
 			
 			// check resized image already exists

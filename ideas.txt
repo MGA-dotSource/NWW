@@ -6,9 +6,6 @@
     * Facebook
     * Twitter
     * G+
-- Lieferanten
-    * müssen irgendwie administriert werden, um Schreibfehler, Duplikate u.Ä. zu vermeiden
-    * sollten ausführlich mich Logo, Anschrift, Beschreibung sein
 - Galerien
 - Projekte
 - eigene Inhalte teilen (Freigabe-Link)

@@ -1,6 +1,10 @@
-var imageDataRowCount = $('#images tbody tr').size();
+var imageDataRowCount = 0;
 
 $(document).ready(function() {
+	imageDataRowCount = $('#images tbody tr').size();
+
+	console.log(imageDataRowCount);
+	
 	$('.input-group.date').datepicker({
         todayBtn: "linked",
         keyboardNavigation: false,
@@ -17,10 +21,12 @@ $(document).ready(function() {
 	
 	$('#images').on('click', 'button[name="btnRemoveImage"]', function() {
 		var fileUUID = $(this).attr('data-ref');
-		$.post($(this).attr('data-url'), { 'fileUUID' : fileUUID }, function() {
+		$('tr[data-file-uuid="' + fileUUID + '"]').remove();
+		reindexImageRows();
+
+		//$.post($(this).attr('data-url'), { 'fileUUID' : fileUUID }, function() {
 			// success -> remove file display
-			$('tr[data-file-uuid="' + fileUUID + '"]').remove();
-		});
+		//});
 	});
 	
 	Dropzone.autoDiscover = false;
@@ -63,3 +69,23 @@ $(document).ready(function() {
 		}
 	});
 });
+
+/**
+ * Calculate new indexes for the project files input fields
+ */
+function reindexImageRows() {
+	// first update the current total row count in case a new image wil be added while doing this here
+	imageDataRowCount = $('#images tbody tr').size(); 
+	
+	var count = 0;
+	$('#images tr [data-name="fileUUID"]').each(function() {
+		var idValueFile = 'Images' + count + '.fileInformationUUID';
+		var nameValueFile = 'Images[' + count + '].fileInformationUUID';
+		var idValueDesc = 'Images' + count + '.Description';
+		var nameValueDesc = 'Images[' + count + '].Description';
+		$(this).attr('id', idValueFile).attr('name', nameValueFile)
+				.next().attr('id', idValueDesc).attr('name', nameValueDesc);
+		
+		count++;
+	});
+}
