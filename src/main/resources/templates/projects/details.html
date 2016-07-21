@@ -5,8 +5,10 @@
 <head>
 	<title th:fragment="title" th:text="${Project.Name} + ' - ' + ${Project.Owner.DisplayName} + ' | Projekte | NETZWERK wohnen'"></title>
 	<th:block th:fragment="styles">
+		<link th:href="@{/css/plugins/blueimp/css/blueimp-gallery.min.css}" rel="stylesheet" />
 	</th:block>
 	<th:block th:fragment="scripts">
+		<script th:src="@{/js/plugins/blueimp/jquery.blueimp-gallery.min.js}"></script>
 		<script th:src="@{/js/custom.js}"></script>
 	</th:block>
 </head>
@@ -65,6 +67,18 @@
                                         <dd th:if="${Project.hasEndDate()}" th:text="${#dates.format(Project.End, 'dd.MM.yyyy')}">end date</dd>
                                     </dl>
                                 </div>
+                            </div>
+                            <div class="row m-t-sm" th:if="${Project.hasImages()}">
+                            	<div class="col-xs-12">
+                            		<h3>Bilder</h3>
+                            		<div class="lightBoxGallery">
+                            			<a th:each="image, stat : ${Project.Images}" 
+                            					th:href="@{__'/files' + ${@FileManager.createDownloadUrlSegment(image.FileInformationUUID)}__}" 
+                            					th:title="${image.Description}" data-gallery="">
+                            				<img th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(image.FileInformationUUID)} + '_150_150'__}" />
+                            			</a>
+                            		</div>
+                            	</div>
                             </div>
                             <div class="row m-t-sm">
                                 <div class="col-xs-12 col-sm-4">
@@ -125,6 +139,15 @@
                     <div th:utext="${Project.Description}"></div>
 				</div>
             </div>
+		</div>
+		<div id="blueimp-gallery" class="blueimp-gallery">
+			<div class="slides"></div>
+			<h3 class="title"></h3>
+			<a class="prev">‹</a>
+			<a class="next">›</a>
+			<a class="close">×</a>
+			<a class="play-pause"></a>
+   			<ol class="indicator"></ol>
 		</div>
 	</th:block>
 </body>
