@@ -64,7 +64,12 @@
                                             	<small th:text="${#dates.format(project.Start, 'dd.MM.yyyy')}">start</small>
                                         	</td>
 											<td class="project-people">
-                                        	    <a th:href="@{/network/users/{name}/ (name = ${participant.User.Username})}" th:each="participant : ${project.Participants}">
+												<a th:href="@{/network/users/{name}/ (name = ${project.Owner.Username})}">
+													<th:block th:include="users/inc/profileImages :: xs (${project.Owner})"></th:block>
+												</a>
+                                        	    <a th:href="@{/network/users/{name}/ (name = ${participant.User.Username})}" 
+                                        	    		th:each="participant : ${project.Participants}"
+                                        	    		th:if="${participant.User != project.Owner}">
                                         	    	<th:block th:include="users/inc/profileImages :: xs (${participant.User})"></th:block>
                                        	    	</a>
                                         	</td>
@@ -73,8 +78,15 @@
                                             			th:href="@{/network/projects/{user}/{project}/edit (user = ${project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(project.Name)})}" 
                                             			class="btn btn-white btn-sm">
                                            			<i class="fa fa-pencil"></i>
-                                         			bearbeiten
+                                         			Bearbeiten
                                          		</a>
+                                         		<a th:if="${CurrentUser.isAdmin() OR project.Owner == CurrentUser}"
+		                                        		th:href="@{/network/projects/{user}/{project}/delete (user = ${project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(project.Name)})}"
+		                                        		data-toggle="modal" data-target="#modal" 
+		                                        		class="btn btn-danger btn-sm m-l-sm"
+		                                        		title="Projekt löschen">
+		                                       		<i class="fa fa-close fa-fw"></i>
+		                                   		</a>
                                         	</td>
                                     	</tr>
                                     </tbody>

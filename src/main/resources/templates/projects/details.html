@@ -39,7 +39,15 @@
                             <div class="row">
                                 <div class="col-lg-12">
                                     <div class="m-b-md">
-                                        <a th:href="@{/network/projects/{user}/{project}/edit (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}" 
+										<a th:if="${CurrentUser.isAdmin() OR Project.Owner == CurrentUser}"
+                                        		th:href="@{/network/projects/{user}/{project}/delete (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}"
+                                        		data-toggle="modal" data-target="#modal" 
+                                        		class="btn btn-danger btn-xs pull-right m-l-md">
+                                       		<i class="fa fa-close fa-fw"></i>
+                                       		Projekt löschen
+                                   		</a>
+                                        <a th:if="${CurrentUser.isAdmin() OR Project.Owner == CurrentUser}"
+                                        		th:href="@{/network/projects/{user}/{project}/edit (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}" 
                                         		class="btn btn-white btn-xs pull-right">Projekt bearbeiten</a>
                                         <h2 th:text="${Project.Name}">project name</h2>
                                     </div>

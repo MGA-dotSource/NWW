@@ -23,10 +23,6 @@ $(document).ready(function() {
 		var fileUUID = $(this).attr('data-ref');
 		$('tr[data-file-uuid="' + fileUUID + '"]').remove();
 		reindexImageRows();
-
-		//$.post($(this).attr('data-url'), { 'fileUUID' : fileUUID }, function() {
-			// success -> remove file display
-		//});
 	});
 	
 	Dropzone.autoDiscover = false;

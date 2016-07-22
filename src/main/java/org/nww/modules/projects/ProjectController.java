@@ -5,12 +5,15 @@ package org.nww.modules.projects;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
 import org.nww.app.AbstractApplicationController;
 import org.nww.app.Constants;
+import org.nww.core.system.OperationResult.State;
 import org.nww.modules.files.orm.FileInformation;
 import org.nww.modules.files.orm.FileManager;
 import org.nww.modules.projects.orm.Project;
@@ -270,39 +273,6 @@ public class ProjectController extends AbstractApplicationController {
 	}
 	
 	/**
-	 * Removes a file information object and its attached file.
-	 * Is intended to be called via ajax.
-	 * @param fileUUID the UUID of the file information object to be deleted
-	 * @return empty HTTP status responses (200 or 400)
-	 */
-	@RequestMapping(value = "/removeFile.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
-	@ResponseBody
-	public ResponseEntity<String> removeFileDo(@RequestParam(name = "fileUUID") String fileUUID) {
-		
-		// file deletion will not really delete the file because from here we cannot update the project
-		// to remove the file information there
-		// instead we move the file (and all its possible resized ones) to the temp folder were it will be deleted later
-		// by the cleanup scheduler
-		
-		FileInformation fi = fileMgr.findOne(fileUUID);
-		
-		if(null == fi || !fileMgr.existsFile(fi)) {
-			return ResponseEntity.ok(null);			
-		}
-		
-		// preconditions fulfilled -> move the file
-		fileMgr.moveFile(fi, fileMgr.getTemp());
-		// move possible resized images too
-		fi.getExtensions().stream()
-				.filter(ext -> ext.getName().startsWith("resized_"))
-				.map(ext -> fileMgr.findOne(ext.getString()))
-				.filter(fileInformation -> null != fileInformation)
-				.forEach(fileInformation -> fileMgr.moveFile(fileInformation, fileMgr.getTemp()));
-		
-		return ResponseEntity.badRequest().body(null);
-	}
-	
-	/**
 	 * Return a file data entry snippet rendered with the passed file information object found 
 	 * for the passed UUID.
 	 * @param fi the file information UUID of the object that should be rendered
@@ -404,5 +374,60 @@ public class ProjectController extends AbstractApplicationController {
 		}
 
 		return TEMPLATE_EDIT_PROJECT;
+	}
+	
+	/**
+	 * Show the delete confirmation dialog.
+	 * @param userName
+	 * @param projectName
+	 * @param redirectAttributes
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{userName}/{projectName}/delete", method = RequestMethod.GET)
+	public CompletionStage<String> delete(
+			@PathVariable("userName") String userName,
+			@PathVariable("projectName") String projectName,
+			RedirectAttributes redirectAttributes,
+			Model model) {
+
+		return CompletableFuture.supplyAsync(() -> {
+			
+			User u = getUserManager().findByUsername(userName);
+			Project p = projectMgr.findByNameAndOwner(urlUtils.decodeURLSegments(projectName), u);
+			
+			if(null == p) {
+				// TODO log this 
+				return "common/empty";
+			}
+			
+			model.addAttribute("Project", p);
+			
+			return "projects/modals/deleteConfirmation";
+		});
+	}
+	
+	/**
+	 * Delete the project whose UUID is passed as a request parameter.
+	 * The path values for user and project name are NOT used here. They are just for convenience.
+	 * @param uuid
+	 * @param redirectAttributes
+	 * @param model
+	 * @return redirect to project list
+	 */
+	@RequestMapping(value = "/{userName}/{projectName}/delete.do", method = RequestMethod.POST)
+	public CompletionStage<String> deleteDo(
+			@RequestParam(name = "UUID", required = true) String uuid,
+			RedirectAttributes redirectAttributes,
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			if(projectMgr.delete(uuid).getResultState() == State.SUCCESSFULL) {
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PDS");
+			}
+			else {
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, "PDE");
+			}
+			return REDIRECT_TO_PROJECT_LIST;
+		});
 	}
 }

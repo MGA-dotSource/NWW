@@ -1,10 +1,16 @@
 <th:block th:if="${param.m != null}">
 	<script type="text/javascript" th:if="${param.m[0] == 'PES'}">
-		toastr.success('Profil aktualisiert!', '&Auml;nderungen &uuml;nommen!');
+		toastr.success('Projekt aktualisiert!', '&Auml;nderungen &uuml;nommen!');
+	</script>
+	<script type="text/javascript" th:if="${param.m[0] == 'PDS'}">
+		toastr.success('Projekt gel&ouml;scht!', 'Vorgang erfolgreich!');
 	</script>
 </th:block>
 <th:block th:if="${param.e != null}">
 	<script type="text/javascript" th:if="${param.e[0] == 'PNF'}">
 		toastr.error('Das Projekt konnte nicht gefunden werden!', 'Es ist ein Fehler aufgetreten!');
+	</script>
+	<script type="text/javascript" th:if="${param.e[0] == 'PDE'}">
+		toastr.error('Das Projekt konnte nicht gel&ouml;scht werden!', 'Es ist ein Fehler aufgetreten!');
 	</script>
 </th:block>
