@@ -27,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -428,6 +429,22 @@ public class ProjectController extends AbstractApplicationController {
 				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, "PDE");
 			}
 			return REDIRECT_TO_PROJECT_LIST;
+		});
+	}
+
+	/**
+	 * Get the HTML snippet for a dashboard new projects widget.
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/widget/", method = RequestMethod.GET)
+	public CompletionStage<String> dashBoardWidget(Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Page<? extends Project> projects = projectMgr.findAll(new PageRequest(0, 3, new Sort(Direction.DESC, "lastModified")));
+			
+			model.addAttribute("Projects", projects);
+			
+			return "projects/widgets/newProjectsWidget";
 		});
 	}
 }
