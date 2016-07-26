@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -63,26 +65,28 @@ public class FileController extends AbstractController {
 
 	@RequestMapping(value = "/**", method = { RequestMethod.GET })
 	@ResponseBody
-	public FileSystemResource handleFileRequest(HttpServletRequest request, Model model) throws MalformedURLException, FileNotFoundException {
-		String path = request.getRequestURI();
-		String localPath = path.substring(0, path.lastIndexOf("/")).replaceAll("/files/", "");
-		
-		String filename = path.substring(path.lastIndexOf("/") + 1);
-		FileRequestInformation fri = new FileRequestInformation(filename);
-		
-		FileInformation fi = getFileMgr().findByLocalPath(localPath, fri.getPurName());
-		
-		if(null != fi) {
-			// get possible resized image
-			fi = getOrCreateResizedImage(fri, fi);
-			File f = getFileMgr().getFile(fi);
+	public CompletionStage<FileSystemResource> handleFileRequest(HttpServletRequest request, Model model) throws MalformedURLException, FileNotFoundException {
+		return CompletableFuture.supplyAsync(() -> {
+			String path = request.getRequestURI();
+			String localPath = path.substring(0, path.lastIndexOf("/")).replaceAll("/files/", "");
 			
-			return new FileSystemResource(f);
-		}
-		
-		log.error("Could not find file for URL '" + path + "'");
-		
-		return null;
+			String filename = path.substring(path.lastIndexOf("/") + 1);
+			FileRequestInformation fri = new FileRequestInformation(filename);
+			
+			FileInformation fi = getFileMgr().findByLocalPath(localPath, fri.getPurName());
+			
+			if(null != fi) {
+				// get possible resized image
+				fi = getOrCreateResizedImage(fri, fi);
+				File f = getFileMgr().getFile(fi);
+				
+				return new FileSystemResource(f);
+			}
+			
+			log.error("Could not find file for URL '" + path + "'");
+			
+			return null;
+		});			
 	}
 	
 	@RequestMapping(value = "/upload.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")

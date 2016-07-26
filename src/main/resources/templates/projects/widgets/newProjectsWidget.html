@@ -4,7 +4,7 @@
 	</div>
 	<div class="ibox-content">
 		<div class="feed-activity-list">
-			<div class="feed-element" th:unless="${Projects.hasNext()}">
+			<div class="feed-element" th:unless="${Projects.TotalElements GT 0}">
 				Es gibt noch keine Neuigkeiten
 			</div>
 			<div class="feed-element" th:each="project : ${Projects}">	
