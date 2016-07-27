@@ -51,6 +51,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers(HttpMethod.POST, "/register.do").permitAll()
 			.antMatchers("/files/upload.do").hasAnyRole(NETWORK_USERS)
 			.antMatchers("/files/**").permitAll()
+			.antMatchers("/error").permitAll()
 			.antMatchers("/network/**").hasAnyRole(NETWORK_USERS)
 			.antMatchers("/admin/**").hasAnyRole(ADMIN_USERS)
 			.and()

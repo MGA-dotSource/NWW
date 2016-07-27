@@ -1,0 +1,29 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NETZWERK wohnen - von Profis für Profis</title>
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <link th:href="@{/css/animate.css}" rel="stylesheet" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+</head>
+
+<body class="gray-bg">
+    <div class="middle-box text-center animated fadeInDown">
+        <h1>500</h1>
+        <h3 class="font-bold">Ups, das hätte nicht passieren sollen!</h3>
+        <div class="error-desc">
+            Entschuldige bitte! Wir beheben das - versprochen!
+        </div>
+        <a th:unless="${CurrentUser}" th:href="@{/}" class="btn btn-info btn-md m-t-md">
+        	Zurück zur Startseite
+        </a>
+        <a th:if="${CurrentUser}" th:href="@{/network}" class="btn btn-info btn-md m-t-md">
+        	Zurück zum Netzwerk
+        </a>
+    </div>
+</body>
+</html>
