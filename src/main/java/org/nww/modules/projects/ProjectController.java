@@ -143,7 +143,6 @@ public class ProjectController extends AbstractApplicationController {
 		
 		Project p = projectMgr.findByNameAndOwner(urlUtils.decodeURLSegments(projectName), getUserManager().findByUsername(userName));
 		
-		// TODO: handle failed credentials separatly
 		User current = populateCurrentUser();
 		if(null == p || !current.isAdmin() || !current.equals(p.getOwner())) {
 			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
@@ -343,6 +342,11 @@ public class ProjectController extends AbstractApplicationController {
 		
 		if(null == toEdit) {
 			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
+			return REDIRECT_TO_PROJECT_LIST;
+		}
+		
+		User current = populateCurrentUser();
+		if(!current.isAdmin() || !current.equals(toEdit.getOwner())) {
 			return REDIRECT_TO_PROJECT_LIST;
 		}
 		

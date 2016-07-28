@@ -31,7 +31,7 @@
 				</ol>
 			</div>
 		</div>
-		<div class="wrapper wrapper-content animated fadeIn">
+		<div class="row">
 			<div class="col-lg-9">
                 <div class="wrapper wrapper-content animated fadeInUp">
                     <div class="ibox">
@@ -42,13 +42,13 @@
 										<a th:if="${CurrentUser.isAdmin() OR Project.Owner == CurrentUser}"
                                         		th:href="@{/network/projects/{user}/{project}/delete (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}"
                                         		data-toggle="modal" data-target="#modal" 
-                                        		class="btn btn-danger btn-xs pull-right m-l-md">
+                                        		class="btn btn-danger btn-xs pull-right m-l-md hidden-xs hidden-sm">
                                        		<i class="fa fa-close fa-fw"></i>
                                        		Projekt löschen
                                    		</a>
                                         <a th:if="${CurrentUser.isAdmin() OR Project.Owner == CurrentUser}"
                                         		th:href="@{/network/projects/{user}/{project}/edit (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}" 
-                                        		class="btn btn-white btn-xs pull-right">Projekt bearbeiten</a>
+                                        		class="btn btn-white btn-xs pull-right hidden-xs hidden-sm">Projekt bearbeiten</a>
                                         <h2 th:text="${Project.Name}">project name</h2>
                                     </div>
                                 </div>
@@ -76,6 +76,13 @@
                                     </dl>
                                 </div>
                             </div>
+                            <hr class="hidden-lg" />
+                            <div class="row m-t-sm hidden-lg">
+                            	<div class="col-xs-12">
+				                    <div th:utext="${Project.Description}"></div>
+                            	</div>
+							</div>
+							<hr />
                             <div class="row m-t-sm" th:if="${Project.hasImages()}">
                             	<div class="col-xs-12">
                             		<h3>Bilder</h3>
@@ -88,6 +95,7 @@
                             		</div>
                             	</div>
                             </div>
+                            <hr />
                             <div class="row m-t-sm">
                                 <div class="col-xs-12 col-sm-4">
                                 	<h3>Mitwirkende</h3>
@@ -141,7 +149,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3">
+            <div class="col-lg-3 hidden-xs hidden-sm hidden-md">
                 <div class="wrapper wrapper-content project-manager">
                     <h4>Projektbeschreibung</h4>
                     <div th:utext="${Project.Description}"></div>

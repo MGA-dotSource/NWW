@@ -1,4 +1,7 @@
 @CHARSET "UTF-8";
+.wrapper-content {
+	overflow: hidden;
+}
 .nav > li .btn-logout {
   	color: #a7b1c2;
   	font-weight: 600;
