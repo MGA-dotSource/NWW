@@ -26,6 +26,8 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 public abstract class AbstractApplicationController extends org.springframework.web.servlet.mvc.AbstractController {
 	
+	protected static final String REDIRECT_TO_NETWORK = "redirect:/network/";
+	
 	@Value("${nww.version}")
 	private String version;
 	@Value("${nww.host}")

@@ -348,7 +348,14 @@ public class SupplierController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		// mapper & manager are aware of profile beeing null!!
@@ -381,7 +388,14 @@ public class SupplierController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		if(!bindingResult.hasErrors()) {
