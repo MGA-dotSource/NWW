@@ -8,13 +8,14 @@
 				Es gibt noch keine Neuigkeiten
 			</div>
 			<div class="feed-element" th:each="project : ${Projects}">	
-				<a href="profile.html" class="pull-left">
+				<a th:href="@{/network/users/{name}/(name = ${project.Owner.Username})}" class="pull-left">
 					<th:block th:include="users/inc/profileImages :: xs (${project.Owner})"></th:block>
 				</a>
 				<div class="media-body ">
 					<small class="pull-right" th:text="${#dates.format(project.LastModified, 'dd.MM.yyyy')}">last modified</small>
 					<strong>
-						<a href="#" th:text="${project.Owner.DisplayName}">owner</a>
+						<a th:href="@{/network/users/{name}/(name = ${project.Owner.Username})}"
+								th:text="${project.Owner.DisplayName}">owner</a>
 					</strong>
 					hat ein neues Projekt erstellt.
 					<div class="project-preview">
