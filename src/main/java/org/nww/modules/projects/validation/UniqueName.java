@@ -22,7 +22,7 @@ import javax.validation.Payload;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface UniqueName {
-	String message() default "Es gibt bereits ein Projekt mit diesem Namen! Projektnamen müssen für einen Benutzer eindeutig sein.";
+	String message() default "Es gibt bereits ein Projekt mit diesem Namen! Projektnamen mÃ¼ssen fÃ¼r einen Benutzer eindeutig sein.";
 
     Class<?>[] groups() default {};
 
