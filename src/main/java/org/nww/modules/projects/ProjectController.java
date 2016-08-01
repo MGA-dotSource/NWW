@@ -346,7 +346,7 @@ public class ProjectController extends AbstractApplicationController {
 		}
 		
 		User current = populateCurrentUser();
-		if(!current.isAdmin() || !current.equals(toEdit.getOwner())) {
+		if(!current.isAdmin() && !current.equals(toEdit.getOwner())) {
 			return REDIRECT_TO_PROJECT_LIST;
 		}
 		
@@ -359,7 +359,7 @@ public class ProjectController extends AbstractApplicationController {
 						// remove possible resized files
 						fi.getExtensions().stream()
 								.filter(ext -> ext.getName().startsWith("resized_")) // find files via extensions
-								.map(ext -> fileMgr.findOne(ext.getString())) // map from UUID extendsion string value to FileInformation
+								.map(ext -> fileMgr.findOne(ext.getString())) // map from UUID extension string value to FileInformation
 								.filter(file -> null != file) // filter null values
 								.forEach(file -> fileMgr.deleteFile(file)); // delete
 						// remove file itself
