@@ -8,6 +8,7 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.URL;
 import org.nww.core.data.form.AbstractPersistentObjectForm;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author mga
@@ -23,6 +24,8 @@ public class SupplierForm extends AbstractPersistentObjectForm {
 	@Length(max = 250)
 	@URL
 	private String url;
+
+	private MultipartFile file;
 	
 	/**
 	 * Set the status.
@@ -79,5 +82,19 @@ public class SupplierForm extends AbstractPersistentObjectForm {
 	 */
 	public void setUrl(String url) {
 		this.url = url;
+	}
+	
+	/**
+	 * @return the file
+	 */
+	public MultipartFile getFile() {
+		return file;
+	}
+	
+	/**
+	 * @param file the file to set
+	 */
+	public void setFile(MultipartFile file) {
+		this.file = file;
 	}
 }

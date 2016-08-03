@@ -1,3 +1,11 @@
+- Messaging-Bus as a separate microservice (spring boot, jar)
+	* use eureka for service discovery
+	* messages can be pushed via async interface
+	* messages will be stored inside mongodb for the first iteration (maybe something else later)
+	* messages have UUID, type, source (who / what caused the message), creation time, processing info (map of services that set a "status" of processing)
+	* service provides a rest interface to access the messages
+
+
 - Nachrichten
 - eigener Dateispeicher
 - mergen des Mailaccounts mit Nachrichten
@@ -7,7 +15,7 @@
     * Twitter
     * G+
 - Galerien
-- Projekte
+
 - eigene Inhalte teilen (Freigabe-Link)
 - Privatsphäre (was wird angezeigt, worüber werde ich benachrichtigt)
 - Notizen

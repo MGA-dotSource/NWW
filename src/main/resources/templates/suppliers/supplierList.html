@@ -31,24 +31,20 @@
 		</div>
 		
 		<div class="wrapper wrapper-content	animated fadeIn">
-			<div class="row" th:if="${CurrentUser.isAdmin()}">
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<div class="ibox float-e-margins">
-                        <div class="ibox-title">
-							<a th:href="@{/network/suppliers/create}"
-									class="btn btn-primary" title="Neuen Lieferanten erstellen">
-								<i class="fa fa-plus fa-fw"></i>
-		                      	Neuer Lieferant
-							</a>
-                        </div>
-					</div>
-				</div>
-			</div>
 			<div class="row">
 				<div class="col-lg-12">
                     <div class="ibox float-e-margins suppliers">
+                    	<div class="ibox-title">
+							<h5>Übersicht über alle Lieferanten</h5>
+							<div th:if="${CurrentUser.isAdmin()}" class="ibox-tools">
+								<a th:href="@{/network/suppliers/create}" class="btn btn-primary btn-xs">
+									<i class="fa fa-plus fa-fw"></i>
+									<span>Neuer Lieferant</span>
+								</a>
+							</div>
+						</div>
                         <div class="ibox-content">
-                          		<div class="project-list" th:unless="${Suppliers.TotalElements == 0}">
+                        	<div class="project-list" th:unless="${Suppliers.TotalElements == 0}">
                                 <table class="table table-hover">
                                     <tbody>
 	                                    <tr th:each="supplier : ${Suppliers}">
@@ -59,6 +55,11 @@
 					                           	<span class="label label-info text-uppercase" th:if="${supplier.ApprovalStatus == 1}" title="Geprüft">
 					                           		<i class="fa fa-check fa-fw"></i>
 					                           	</span>
+	                                        </td>
+	                                        <td class="project-title">
+	                                        	<img th:alt="${supplier.Name}" class="m-t-xs supplier-list-img"
+														th:if="${supplier.hasLogo()}"
+														th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(supplier.LogoFileInformationUUID)}__}" />
 	                                        </td>
 	                                        <td class="project-title">
 	                                            <a th:href="@{'/network/suppliers/' + ${@URLUtilsService.encodeURLSegments(supplier.Name)} + '/'}" th:text="${supplier.Name}"></a>

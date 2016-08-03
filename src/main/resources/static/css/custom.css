@@ -206,3 +206,7 @@ pre.company-description {
 	max-width: 150px;
 	max-height: 75px;
 }
+.supplier-list-img {
+	max-width: 100px;
+	max-height: 50px;
+}

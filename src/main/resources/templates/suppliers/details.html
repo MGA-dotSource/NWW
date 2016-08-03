@@ -57,8 +57,10 @@
                            	</span>
                         </div>
 						<div>
-                        	<div class="ibox-content no-padding border-left-right">
-								<img alt="image" class="img-responsive" src="img/profile_big.jpg" th:if="${Supplier.hasLogo()}"/>
+                        	<div class="ibox-content no-padding border-left-right text-center">
+								<img th:alt="${Supplier.Name}" class="m-t-xs"
+										th:if="${Supplier.hasLogo()}"
+										th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(Supplier.LogoFileInformationUUID)} + '_250'__}" />
 								<div class="text-center m-t-sm" th:unless="${Supplier.hasLogo()}">
 									<i class="fa fa-4x fa-industry placeholder" title="Noch kein Firmenlogo hinterlegt"></i>
 								</div>
