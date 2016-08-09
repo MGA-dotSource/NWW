@@ -204,7 +204,7 @@
 <!--/*
     START TEXT INPUT 
 */-->
-<th:block th:fragment="inputFile (Name, Label, LblClass, InputClass, Required)">
+<th:block th:fragment="inputFile (Name, Label, LblClass, InputClass, Required, Accept)">
 	<label th:class="${LblClass}" th:classappend="${#fields.hasErrors(__'\'' + ${Name} + '\''__)} ? ' error'">
 		<strong th:text="${Label}" th:if="${Required}">lbl</strong>
 		<span th:text="${Label}" th:unless="${Required}">lbl</span>
@@ -214,6 +214,7 @@
         		th:classappend="${#fields.hasErrors(__'\'' + ${Name} + '\''__)} ? ' error'"
         		th:field="*{__${Name}__}" 
         		th:title="${Label}" 
+        		th:attr="accept=${Accept}"
         		th:required="${Required != null AND Required}" />
         <div class="alert alert-danger attached" role="alert" th:if="${#fields.hasErrors(__'\'' + ${Name} + '\''__)}">
             <ul>

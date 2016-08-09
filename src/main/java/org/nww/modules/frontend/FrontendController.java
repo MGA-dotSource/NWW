@@ -91,7 +91,7 @@ public class FrontendController extends AbstractApplicationController {
 	 * Redirect the old about page to the new single page about section.
 	 * @return the redirect
 	 */
-	@RequestMapping(value = "/about")
+	@RequestMapping(value = "/about", method = RequestMethod.GET)
 	public String redirectOldAboutPage() {
 		return "redirect:/#about";
 	}

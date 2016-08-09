@@ -29,6 +29,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -55,7 +56,7 @@ public class SearchController extends AbstractApplicationController {
 	@Resource(name = "SupplierManager")
 	private SupplierManager supplierMgr;
 	
-	@RequestMapping(value = "", params = "q")
+	@RequestMapping(value = "", params = "q", method = RequestMethod.GET)
 	public String searchAll(@RequestParam(required = true, value = "q") String query, Model model) {
 		StopWatch sw = new StopWatch();
 		sw.start();

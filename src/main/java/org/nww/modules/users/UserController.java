@@ -100,7 +100,7 @@ public class UserController extends AbstractApplicationController {
 		return "users/userList :: pagingArea";
 	}
 	
-	@RequestMapping(value = "/{name}/")
+	@RequestMapping(value = "/{name}/", method = RequestMethod.GET)
 	public String showProfile(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
 		User u = getUserManager().findByUsername(username);
 		
@@ -119,7 +119,7 @@ public class UserController extends AbstractApplicationController {
 		return "users/profile"; 
 	}
 	
-	@RequestMapping(value = "/{name}/editProfile")
+	@RequestMapping(value = "/{name}/editProfile", method = RequestMethod.GET)
 	public String editProfile(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
 		User u = getUserManager().findByUsername(username);
 		

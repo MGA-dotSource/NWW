@@ -239,6 +239,7 @@ public class SupplierController extends AbstractApplicationController {
 	@RequestMapping(value = "/{name}/edit.do", method = RequestMethod.POST)
 	public CompletionStage<String> editDo(
 			@RequestParam(name = "file", required = true) MultipartFile file,
+			@RequestParam(name = "removeImage", required = false) boolean removeImage,
 			@Valid @ModelAttribute("SupplierForm") SupplierForm form, 
 			BindingResult bindingResult,
 			RedirectAttributes redirectAttributes, Model model) {
@@ -274,7 +275,7 @@ public class SupplierController extends AbstractApplicationController {
 				}
 				if(s.hasLogo()) {
 					// delete old logo before storing the new one
-					if(null != logoImage) {
+					if(null != logoImage || removeImage) {
 						fileMgr.deleteFile(s.getLogoFileInformation());
 					}
 					s.setLogoFileInformation(logoImage);
@@ -397,7 +398,7 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/byuser/{uname}/edit")
+	@RequestMapping(value = "/byuser/{uname}/edit", method = RequestMethod.GET)
 	public String editUsersSuppliers(@PathVariable("uname") String uName, RedirectAttributes redirectAttributes, Model model) {
 		User u = getUserManager().findByUsername(uName);
 		
