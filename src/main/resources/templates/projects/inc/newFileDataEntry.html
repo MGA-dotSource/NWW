@@ -1,0 +1,26 @@
+<tr th:attr="data-file-uuid=${FileData.FileInformationUUID}">
+	<td>
+		<img class="project-preview-img" th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(FileData.FileInformationUUID)}__}" />
+	</td>
+	<td th:text="${FileData.FileInformation.OriginalName}">
+	</td>
+	<td>
+		<div>
+			<input type="hidden" th:name="'Images[' + ${CounterValue} + '].fileInformationUUID'"
+					data-name="fileUUID" 
+					th:id="'Images' + ${CounterValue} + '.fileInformationUUID'"
+					th:value="${FileData.FileInformationUUID}"/>
+        	<input class="form-control" type="text" maxlength="250" 
+        			th:id="'Images' + ${CounterValue} + '.Description'" 
+        			th:name="'Images[' + ${CounterValue} + '].Description'" 
+       				th:value="${FileData.Description}" autocomplete="off" />
+		</div>
+	</td>
+	<td>
+		<button name="btnRemoveImage" type="button" class="btn btn-white" 
+				title="Diese Datei löschen"
+				th:attr="data-ref=${FileData.FileInformationUUID}, data-url=@{/network/projects/removeFile.do}">
+			<i class="fa fa-trash"></i> 
+		</button>
+	</td>
+</tr>

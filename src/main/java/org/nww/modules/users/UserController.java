@@ -100,13 +100,13 @@ public class UserController extends AbstractApplicationController {
 		return "users/userList :: pagingArea";
 	}
 	
-	@RequestMapping(value = "/{name}/")
+	@RequestMapping(value = "/{name}/", method = RequestMethod.GET)
 	public String showProfile(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
 		User u = getUserManager().findByUsername(username);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
 		}
 
 		if(populateCurrentUser().getUUID().equals(u.getUUID())) {
@@ -119,17 +119,24 @@ public class UserController extends AbstractApplicationController {
 		return "users/profile"; 
 	}
 	
-	@RequestMapping(value = "/{name}/editProfile")
+	@RequestMapping(value = "/{name}/editProfile", method = RequestMethod.GET)
 	public String editProfile(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
 		User u = getUserManager().findByUsername(username);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
 		}
 		
-		if(populateCurrentUser().getUUID().equals(u.getUUID())) {
+		// check user is allowed to be edited -> current = user to edit OR current = admin
+		User currentUser = populateCurrentUser();
+		if(currentUser.getUUID().equals(u.getUUID())) {
 			model.addAttribute(SELECTED_MENU_ITEM, "profile");
+		}
+		else if(!currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		model.addAttribute("User", u);
@@ -154,7 +161,14 @@ public class UserController extends AbstractApplicationController {
 
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		if(!bindingResult.hasErrors()) {
@@ -188,7 +202,14 @@ public class UserController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		model.addAttribute("User", u);
@@ -213,7 +234,14 @@ public class UserController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		Profile p = u.getProfile() != null ? skillsFormDataMapper.mapToExistingPersistentObject(form, u.getProfile())
@@ -236,7 +264,14 @@ public class UserController extends AbstractApplicationController {
 		User u = getUserManager().findByUsername(username);
 		
 		if(null == u) {
-			return ""; // should not happend - bad request status accepted for a while
+			return "common/empty"; // should not happend - bad request status accepted for a while
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return "common/empty";
 		}
 		
 		model.addAttribute("User", u);
@@ -253,6 +288,13 @@ public class UserController extends AbstractApplicationController {
 		
 		if(null == u) {
 			// user does not have a profile currently
+			return ResponseEntity.badRequest().body("");
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
 			return ResponseEntity.badRequest().body("");
 		}
 		
@@ -298,7 +340,14 @@ public class UserController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		if(u.hasProfile() && u.getProfile().hasAttribute(PROFILE_IMAGE_UUID)) {
@@ -372,7 +421,14 @@ public class UserController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		CredentialsForm cf = credentialsFormDataMapper.mapToForm(u);
@@ -392,7 +448,14 @@ public class UserController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		// validate passwords

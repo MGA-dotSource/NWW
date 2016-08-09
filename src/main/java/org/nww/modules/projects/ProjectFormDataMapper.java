@@ -25,16 +25,17 @@ public class ProjectFormDataMapper implements FormDataMapper<ProjectForm, Projec
 	public ProjectForm mapToForm(Project p) {
 		ProjectForm f = new ProjectForm();
 		
+		f.setUUID(p.getUUID());
 		f.setName(p.getName());
 		f.setDescription(p.getDescription());
 		f.setOwnerUUID(p.getOwnerUUID());
-		f.setStart(p.getProjectStart());
-		f.setEnd(p.getProjectEnd());
-		f.setCustomer(p.getProjectCustomer());
-		f.setLocation(p.getProjectLocation());
+		f.setStart(p.getStart());
+		f.setEnd(p.getEnd());
+		f.setCustomer(p.getCustomer());
+		f.setLocation(p.getLocation());
 		f.setParticipants(p.getParticipants());
 		f.setSuppliers(p.getSuppliers());
-		f.setGallery(p.getGallery());
+		f.setImages(p.getImages());
 		
 		return f;
 	}
@@ -44,9 +45,12 @@ public class ProjectFormDataMapper implements FormDataMapper<ProjectForm, Projec
 	 */
 	@Override
 	public Project mapToPersistentObject(ProjectForm form) {
-		Project p = projectMgr.createNew();
+		Project p = mapToExistingPersistentObject(form, projectMgr.createNew());
 		
-		return mapToExistingPersistentObject(form, p);
+		// force UUID creation by the database
+		p.setUUID(null);
+		
+		return p;
 	}
 
 	/* (non-Javadoc)
@@ -54,16 +58,17 @@ public class ProjectFormDataMapper implements FormDataMapper<ProjectForm, Projec
 	 */
 	@Override
 	public Project mapToExistingPersistentObject(ProjectForm f, Project p) {
+		p.setUUID(f.getUUID());
 		p.setName(f.getName());
 		p.setDescription(f.getDescription());
 		p.setOwnerUUID(f.getOwnerUUID());
-		p.setProjectStart(f.getStart());
-		p.setProjectEnd(f.getEnd());
-		p.setProjectCustomer(f.getCustomer());
-		p.setProjectLocation(f.getLocation());
+		p.setStart(f.getStart());
+		p.setEnd(f.getEnd());
+		p.setCustomer(f.getCustomer());
+		p.setLocation(f.getLocation());
 		p.setParticipants(f.getParticipants());
 		p.setSuppliers(f.getSuppliers());
-		p.setGallery(f.getGallery());
+		p.setImages(f.getImages());
 		
 		return p;
 	}

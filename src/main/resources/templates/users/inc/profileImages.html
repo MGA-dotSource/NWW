@@ -2,23 +2,23 @@
 	<img th:alt="${User.DisplayName}" class="img-circle profile-img-sm"
 			th:if="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}" 
 			th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_61_61'__}" />
-	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder md"></i>
+	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder md" th:title="${User.DisplayName}"></i>
 </th:block>
 <th:block th:fragment="sm (User)">
 	<img th:alt="${User.DisplayName}" class="img-circle profile-img-sm"
 			th:if="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}" 
 			th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_61_61'__}" />
-	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder sm"></i>
+	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder sm" th:title="${User.DisplayName}"></i>
 </th:block>
 <th:block th:fragment="xs (User)">
 	<img th:alt="${User.DisplayName}" class="img-circle profile-img-xs"
 			th:if="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}" 
 			th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_32_32'__}" />
-	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder xs"></i>
+	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder xs" th:title="${User.DisplayName}"></i>
 </th:block>
 <th:block th:fragment="xxs (User)">
 	<img th:alt="${User.DisplayName}" class="img-circle profile-img-xs"
 			th:if="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}" 
 			th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_18_18'__}" />
-	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder xxs"></i>
+	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder xxs" th:title="${User.DisplayName}"></i>
 </th:block>

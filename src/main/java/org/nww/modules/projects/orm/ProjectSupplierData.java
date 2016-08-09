@@ -13,7 +13,7 @@ import org.springframework.data.annotation.Transient;
  * @author mga
  */
 public class ProjectSupplierData {
-	private String supplierUUID;
+	private String name;
 	private String description;
 
 	@Transient
@@ -30,26 +30,26 @@ public class ProjectSupplierData {
 	
 	/**
 	 * Create a new {@link ProjectSupplierData} object using the passed data.
-	 * @param supplierUUID the supplier UUID
+	 * @param name the supplier UUID
 	 * @param description the description
 	 */
-	public ProjectSupplierData(String supplierUUID, String description) {
-		this.supplierUUID = supplierUUID;
+	public ProjectSupplierData(String name, String description) {
+		this.name = name;
 		this.description = description;
 	}
 	
 	/**
-	 * @return the supplierUUID
+	 * @return the name
 	 */
-	public String getSupplierUUID() {
-		return supplierUUID;
+	public String getName() {
+		return name;
 	}
 	
 	/**
-	 * @param supplierUUID the supplierUUID to set
+	 * @param name the name to set
 	 */
-	public void setSupplierUUID(String supplierUUID) {
-		this.supplierUUID = supplierUUID;
+	public void setName(String name) {
+		this.name = name;
 	}
 	
 	/**
@@ -57,7 +57,7 @@ public class ProjectSupplierData {
 	 */
 	public Supplier getSupplier() {
 		if(null == this.supplier) {
-			this.supplier = supplierMgr.findOne(this.supplierUUID);
+			this.supplier = supplierMgr.findByName(this.name);
 		}
 		return supplier;
 	}
@@ -67,7 +67,7 @@ public class ProjectSupplierData {
 	 */
 	public void setSupplier(Supplier supplier) {
 		this.supplier = supplier;
-		this.supplierUUID = supplier.getUUID();
+		this.name = supplier.getName();
 	}
 	
 	/**
@@ -88,11 +88,11 @@ public class ProjectSupplierData {
 	 */
 	@Override
 	public int hashCode() {
-		if(null == this.supplierUUID || null == this.description) {
+		if(null == this.name || null == this.description) {
 			return super.hashCode();
 		}
 		
-		return this.supplierUUID.hashCode() ^ this.description.hashCode();
+		return this.name.hashCode() ^ this.description.hashCode();
 	}
 	
 	/* (non-Javadoc)

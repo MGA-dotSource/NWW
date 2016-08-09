@@ -17,6 +17,7 @@ import org.nww.modules.users.orm.UserManager;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.thymeleaf.util.StringUtils;
 
 /**
  * MongoDB based implementation of the {@link Project} POJO interface.
@@ -119,7 +120,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#getProjectStart()
 	 */
 	@Override
-	public Date getProjectStart() {
+	public Date getStart() {
 		return this.start;
 	}
 
@@ -127,7 +128,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#setProjectStart(java.util.Date)
 	 */
 	@Override
-	public void setProjectStart(Date start) {
+	public void setStart(Date start) {
 		this.start = start;
 	}
 
@@ -135,7 +136,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#getProjectEnd()
 	 */
 	@Override
-	public Date getProjectEnd() {
+	public Date getEnd() {
 		return this.end;
 	}
 
@@ -143,7 +144,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#setProjectEnd(java.util.Date)
 	 */
 	@Override
-	public void setProjectEnd(Date end) {
+	public void setEnd(Date end) {
 		this.end = end;
 	}
 
@@ -151,7 +152,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#getProjectLocation()
 	 */
 	@Override
-	public String getProjectLocation() {
+	public String getLocation() {
 		return this.location;
 	}
 
@@ -159,7 +160,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#setProjectLocation(java.lang.String)
 	 */
 	@Override
-	public void setProjectLocation(String location) {
+	public void setLocation(String location) {
 		this.location = location;
 	}
 
@@ -167,7 +168,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#getProjectCustomer()
 	 */
 	@Override
-	public String getProjectCustomer() {
+	public String getCustomer() {
 		return this.customer;
 	}
 
@@ -175,7 +176,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#setProjectCustomer(java.lang.String)
 	 */
 	@Override
-	public void setProjectCustomer(String customer) {
+	public void setCustomer(String customer) {
 		this.customer = customer;
 	}
 
@@ -211,7 +212,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 		ProjectSupplierData psd = null;
 		
 		for (ProjectSupplierData data : getSuppliers()) {
-			if(data.getSupplierUUID().equals(s.getUUID())) {
+			if(s.equals(data.getSupplier())) {
 				psd = data;
 				break;
 			}
@@ -226,7 +227,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#getGallery()
 	 */
 	@Override
-	public List<ProjectFileData> getGallery() {
+	public List<ProjectFileData> getImages() {
 		return this.gallery;
 	}
 
@@ -234,7 +235,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#setGallery(java.util.List)
 	 */
 	@Override
-	public void setGallery(List<ProjectFileData> files) {
+	public void setImages(List<ProjectFileData> files) {
 		this.gallery = files;
 	}
 
@@ -242,7 +243,7 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#addGalleryFile(org.nww.modules.projects.ProjectFileData)
 	 */
 	@Override
-	public void addGalleryFile(ProjectFileData file) {
+	public void addImageFile(ProjectFileData file) {
 		this.gallery.add(file);
 	}
 
@@ -250,10 +251,10 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 	 * @see org.nww.modules.projects.Project#removeGalleryFile(org.nww.modules.projects.ProjectFileData)
 	 */
 	@Override
-	public void removeGalleryFile(FileInformation file) {
+	public void removeImageFile(FileInformation file) {
 		ProjectFileData pfd = null;
 		
-		for (ProjectFileData data : getGallery()) {
+		for (ProjectFileData data : getImages()) {
 			if(data.getFileInformationUUID().equals(file.getUUID())) {
 				pfd = data;
 				break;
@@ -306,5 +307,61 @@ public class ProjectImpl extends AbstractExtensiblePersistentObject implements P
 		if(null != ppd) {
 			this.participants.remove(ppd);
 		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasDescription()
+	 */
+	@Override
+	public boolean hasDescription() {
+		return !StringUtils.isEmpty(getDescription());
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasCustomer()
+	 */
+	@Override
+	public boolean hasCustomer() {
+		return !StringUtils.isEmpty(getCustomer());
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasLocation()
+	 */
+	@Override
+	public boolean hasLocation() {
+		return !StringUtils.isEmpty(getLocation());
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasEndDate()
+	 */
+	@Override
+	public boolean hasEndDate() {
+		return null != getEnd();
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasImages()
+	 */
+	@Override
+	public boolean hasImages() {
+		return getImages().size() > 0;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasParticipants()
+	 */
+	@Override
+	public boolean hasParticipants() {
+		return getParticipants().size() > 0;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.projects.orm.Project#hasSuppliers()
+	 */
+	@Override
+	public boolean hasSuppliers() {
+		return getSuppliers().size() > 0;
 	}
 }

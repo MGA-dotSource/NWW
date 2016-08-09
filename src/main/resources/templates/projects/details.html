@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	th:include="backend/layout :: layout">
+<head>
+	<title th:fragment="title" th:text="${Project.Name} + ' - ' + ${Project.Owner.DisplayName} + ' | Projekte | NETZWERK wohnen'"></title>
+	<th:block th:fragment="styles">
+		<link th:href="@{/css/plugins/blueimp/css/blueimp-gallery.min.css}" rel="stylesheet" />
+	</th:block>
+	<th:block th:fragment="scripts">
+		<script th:src="@{/js/plugins/blueimp/jquery.blueimp-gallery.min.js}"></script>
+		<script th:src="@{/js/custom.js}"></script>
+	</th:block>
+</head>
+<body>
+	<th:block th:fragment="content">
+		<th:block th:include="projects/inc/projectNotifications"></th:block>
+		<div class="row wrapper border-bottom white-bg page-heading">
+			<div class="col-lg-9">
+				<h2 th:text="${Project.Name}">project name</h2>
+				<ol class="breadcrumb">
+					<li>
+						<a th:href="@{/network}">Dashboard</a>
+					</li>
+					<li>
+						<a th:href="@{/network/projects/}">Projekte</a>
+					</li>
+					<li class="active">
+						<strong th:text="${Project.Name}"></strong>
+					</li>
+				</ol>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-lg-9">
+                <div class="wrapper wrapper-content animated fadeInUp">
+                    <div class="ibox">
+                        <div class="ibox-content">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="m-b-md">
+										<a th:if="${CurrentUser.isAdmin() OR Project.Owner == CurrentUser}"
+                                        		th:href="@{/network/projects/{user}/{project}/delete (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}"
+                                        		data-toggle="modal" data-target="#modal" 
+                                        		class="btn btn-danger btn-xs pull-right m-l-md hidden-xs hidden-sm">
+                                       		<i class="fa fa-close fa-fw"></i>
+                                       		Projekt löschen
+                                   		</a>
+                                        <a th:if="${CurrentUser.isAdmin() OR Project.Owner == CurrentUser}"
+                                        		th:href="@{/network/projects/{user}/{project}/edit (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}" 
+                                        		class="btn btn-white btn-xs pull-right hidden-xs hidden-sm">Projekt bearbeiten</a>
+                                        <h2 th:text="${Project.Name}">project name</h2>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <dl class="dl-horizontal">
+                                        <dt class="m-b-xs">Ein Project von:</dt>
+                                        <dd>
+                                        	<a th:href="@{/network/users/{name}/ (name = ${Project.Owner.Username})}"
+                                        			th:text="${Project.Owner.DisplayName}"
+                                        			class="text-navy">project owner name</a></dd>
+                                        <dt th:if="${Project.hasCustomer()}" >Kunde:</dt>
+                                        <dd th:if="${Project.hasCustomer()}" th:text="${Project.Customer}" class="m-b-xs" >customer</dd>
+                                        <dt th:if="${Project.hasLocation()}">Ort:</dt>
+                                        <dd th:if="${Project.hasLocation()}" th:text="${Project.Location}" class="m-b-xs" >project location</dd>
+                                    </dl>
+                                </div>
+                                <div class="col-lg-7" id="cluster_info">
+                                    <dl class="dl-horizontal">
+                                        <dt>Projektbeginn:</dt>
+                                        <dd th:text="${#dates.format(Project.Start, 'dd.MM.yyyy')}">start date</dd>
+                                        <dt th:if="${Project.hasEndDate()}">Projektende:</dt>
+                                        <dd th:if="${Project.hasEndDate()}" th:text="${#dates.format(Project.End, 'dd.MM.yyyy')}">end date</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                            <hr class="hidden-lg" />
+                            <div class="row m-t-sm hidden-lg">
+                            	<div class="col-xs-12">
+				                    <div th:utext="${Project.Description}"></div>
+                            	</div>
+							</div>
+							<hr />
+                            <div class="row m-t-sm" th:if="${Project.hasImages()}">
+                            	<div class="col-xs-12">
+                            		<h3>Bilder</h3>
+                            		<div class="lightBoxGallery">
+                            			<a th:each="image, stat : ${Project.Images}" 
+                            					th:href="@{__'/files' + ${@FileManager.createDownloadUrlSegment(image.FileInformationUUID)}__}" 
+                            					th:title="${image.Description}" data-gallery="">
+                            				<img th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(image.FileInformationUUID)} + '_150_150'__}" />
+                            			</a>
+                            		</div>
+                            	</div>
+                            </div>
+                            <hr />
+                            <div class="row m-t-sm">
+                                <div class="col-xs-12 col-sm-4">
+                                	<h3>Mitwirkende</h3>
+                                	<div class="contact-box" th:each="participant, stat : ${Project.Participants}">
+					                    <a th:href="@{/network/users/{name}/ (name = ${participant.User.Username})}">
+						                    <div class="col-sm-4">
+						                        <div class="text-center">
+						                        	<img src="" th:replace="users/inc/profileImages :: md(${participant.User})" />
+						                            <div class="m-t-xs font-bold" th:text="${participant.User.Profile.CompanyUserRole}">role</div>
+						                        </div>
+						                    </div>
+						                    <div class="col-sm-8">
+						                        <h3>
+						                        	<strong th:text="${participant.User.DisplayName}">user name</strong>
+					                        	</h3>
+						                        <p>
+						                        	<i class="fa fa-map-marker"></i>
+						                        	<span th:text="${participant.User.Profile.City}"></span>
+					                        	</p>
+						                        <div th:text="${participant.Description}">
+						                        	participant description
+						                       	</div>
+						                    </div>
+						                    <div class="clearfix"></div>
+				                        </a>
+					                </div>
+                                </div>
+                                <div class="col-xs-12 col-sm-4">
+					                <h3>Lieferanten</h3>
+					                <div class="contact-box" th:each="sData, stat : ${Project.Suppliers}">
+					                    <a th:href="@{/network/suppliers/{name}/ (name = ${@URLUtilsService.encodeURLSegments(sData.Supplier.Name)})}">
+						                    <div class="col-sm-4">
+						                        <div class="text-center">
+						                        	<i class="fa fa-4x fa-industry placeholder" title="Noch kein Firmenlogo hinterlegt"></i>
+						                        </div>
+						                    </div>
+						                    <div class="col-sm-8">
+						                        <h3>
+						                        	<strong th:text="${sData.Supplier.Name}">supplier name</strong>
+					                        	</h3>
+						                        <div th:text="${sData.Description}">
+						                        	supplier description
+						                       	</div>
+						                    </div>
+						                    <div class="clearfix"></div>
+				                        </a>
+					                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 hidden-xs hidden-sm hidden-md">
+                <div class="wrapper wrapper-content project-manager">
+                    <h4>Projektbeschreibung</h4>
+                    <div th:utext="${Project.Description}"></div>
+				</div>
+            </div>
+		</div>
+		<div id="blueimp-gallery" class="blueimp-gallery">
+			<div class="slides"></div>
+			<h3 class="title"></h3>
+			<a class="prev">‹</a>
+			<a class="next">›</a>
+			<a class="close">×</a>
+			<a class="play-pause"></a>
+   			<ol class="indicator"></ol>
+		</div>
+	</th:block>
+</body>
+</html>

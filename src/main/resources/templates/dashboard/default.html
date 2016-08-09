@@ -4,10 +4,26 @@
 		th:include="backend/layout :: layout">
 <head>
 	<title th:fragment="title">Dashboard | NETZWERK wohnen</title>
+	<th:block th:fragment="scripts">
+		<script th:src="@{/js/plugins/loadR/loadR.js}"></script>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				$('[data-loadr]').loadR();
+			});
+		</script>
+	</th:block>
 </head>
 <body>
-	<div class="wrapper wrapper-content animated fadeInRight" th:fragment="content">
-		<th:block th:include="/dashboard/inc/dashboardNotifications"></th:block>
+	<th:block th:fragment="content">
+		<div class="row border-bottom white-bg dashboard-header">
+			<div class="col-sm-6">
+				<h2>
+					Willkommen zurück
+					<span th:text="${CurrentUser.DisplayName}"></span>
+				</h2>
+			</div>
+		</div>
+		<th:block th:include="dashboard/inc/dashboardNotifications"></th:block>
 		<div class="row">
 			<div class="col-lg-12">
 				<div class="ibox float-e-margins hidden-sm hidden-md hidden-lg">
@@ -28,32 +44,11 @@
 				</div>
 			</div>
 		</div>
-		
 		<div class="row">
-			<div class="col-xs-12">
-				<div class="ibox float-e-margins">
-					<div class="ibox-title">
-						<h5>Was gibt es neues in Version 0.9?</h5>
-					</div>
-					<div class="ibox-content">
-						<dl class="dl-horizontal">
-							<dt>Lieferanten</dt>
-							<dd>
-								<p>
-									Jedes Mitglied kann seine Lieferanten pflegen und darüber auch gefunden werden.
-								</p>
-							</dd>
-							<dt class="m-b-sm">Globale Suche für<br />Lieferanten</dt>
-							<dd>
-								<p>
-									Lieferanten und Mitglieder die diese gepflegt haben lassen sich über die globale Suche finden.
-								</p>
-							</dd>
-						</dl>
-					</div>
-				</div>
+			<div class="col-xs-12 col-sm-12 col-md-8 col-lg-6">
+				<div th:attr="data-loadr=@{/network/projects/widget/}"></div>
 			</div>
 		</div>
-	</div>
+	</th:block>
 </body>
 </html>

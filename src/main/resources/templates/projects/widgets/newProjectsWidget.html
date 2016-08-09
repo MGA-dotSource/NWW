@@ -1,0 +1,35 @@
+<div class="ibox float-e-margins">
+	<div class="ibox-title">	
+		<h5>Neuigkeiten im Netzwerk</h5>
+	</div>
+	<div class="ibox-content">
+		<div class="feed-activity-list">
+			<div class="feed-element" th:unless="${Projects.TotalElements GT 0}">
+				Es gibt noch keine Neuigkeiten
+			</div>
+			<div class="feed-element" th:each="project : ${Projects}">	
+				<a th:href="@{/network/users/{name}/(name = ${project.Owner.Username})}" class="pull-left">
+					<th:block th:include="users/inc/profileImages :: xs (${project.Owner})"></th:block>
+				</a>
+				<div class="media-body ">
+					<small class="pull-right" th:text="${#dates.format(project.LastModified, 'dd.MM.yyyy')}">last modified</small>
+					<strong>
+						<a th:href="@{/network/users/{name}/(name = ${project.Owner.Username})}"
+								th:text="${project.Owner.DisplayName}">owner</a>
+					</strong>
+					hat ein neues Projekt erstellt.
+					<div class="project-preview">
+						<a th:href="@{/network/projects/{user}/{project}/ (user = ${project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(project.Name)})}">
+							<h4 th:text="${project.Name}"></h4>
+							<div th:if="${project.hasImages()}">
+								<img th:each="image, stat : ${project.Images}"
+										th:if="${stat.index lt 3}"
+										th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(image.FileInformationUUID)} + '_100_100'__}" />
+							</div>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

@@ -11,7 +11,6 @@ buildscript {
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
         classpath("io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE")
-        classpath group: 'org.tmatesoft.svnkit', name: 'svnkit', version: '1.8.10'
     }
 }
 
@@ -19,14 +18,8 @@ apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'spring-boot' 
 apply plugin: 'io.spring.dependency-management' 
-apply plugin: 'war'
 apply plugin: 'jacoco'
 
-
-war {
-    baseName = 'NetzwerkWohnen'
-    version = file('version.txt').text
-}
 jar {
 	baseName = 'NetzwerkWohnen'
     version = file('version.txt').text
@@ -53,7 +46,9 @@ dependencies {
 	compile('org.springframework.data:spring-data-elasticsearch')
     compile("org.springframework.boot:spring-boot-starter-mail")
     compile("org.springframework.boot:spring-boot-starter-security")
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf') {
+    	exclude group: "org.javassist", module: "javassist"
+    }
     compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.thymeleaf.extras:thymeleaf-extras-springsecurity4")
     compile("org.springframework.boot:spring-boot-starter-actuator")

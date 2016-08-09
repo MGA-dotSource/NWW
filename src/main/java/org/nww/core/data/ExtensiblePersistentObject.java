@@ -15,6 +15,11 @@ import java.util.Locale;
  */
 public interface ExtensiblePersistentObject extends PersistentObject {
 
+	/**
+	 * @return list of all available extensions
+	 */
+	List<? extends ObjectExtension> getExtensions();
+	
     /**
      * Returns a named dynamic string attribute that is stored unlocalized.
      *

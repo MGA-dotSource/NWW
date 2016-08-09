@@ -44,8 +44,8 @@ import org.nww.modules.projects.orm.Project;
 import org.nww.modules.projects.orm.ProjectManager;
 import org.nww.modules.projects.orm.ProjectManagerImpl;
 import org.nww.modules.projects.orm.ProjectRepository;
+import org.nww.modules.projects.validation.UniqueNameValidator;
 import org.nww.modules.suppliers.SupplierFormDataMapper;
-import org.nww.modules.suppliers.SupplierNamesUpdateScheduler;
 import org.nww.modules.suppliers.UserSuppliersFormDataMapper;
 import org.nww.modules.suppliers.orm.MongoSupplierRepository;
 import org.nww.modules.suppliers.orm.Supplier;
@@ -88,10 +88,10 @@ public class ApplicationBeanConfig {
 	/*********************************
 	 * FIX for not trimmed supplier names runs only once after deployment
 	 */
-	@Bean
-	public SupplierNamesUpdateScheduler setupSupplierNamesUpdateScheduler() {
-		return new SupplierNamesUpdateScheduler();
-	}
+	//@Bean
+	//public SupplierNamesUpdateScheduler setupSupplierNamesUpdateScheduler() {
+	//	return new SupplierNamesUpdateScheduler();
+	//}
 	
 	/*************************************************\
 	 * HELPER
@@ -126,6 +126,22 @@ public class ApplicationBeanConfig {
 	 * EOF HELPER
 	\*************************************************/
 
+	/*************************************************\
+	 * VALIDATION
+	\*************************************************/
+	
+	/**
+	 * @return the unique name validator for the project models
+	 */
+	@Bean
+	public UniqueNameValidator uniqueNameValidator() {
+		return new UniqueNameValidator();
+	}
+	
+	/*************************************************\
+	 * EOF VALIDATION
+	\*************************************************/
+	
 	/*************************************************\
 	 * REPOSITORIES
 	\*************************************************/

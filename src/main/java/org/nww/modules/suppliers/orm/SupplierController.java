@@ -6,8 +6,11 @@ package org.nww.modules.suppliers.orm;
 import static org.nww.app.Constants.REDIRECT_PARAM_NAME_ERROR;
 import static org.nww.app.Constants.REDIRECT_PARAM_NAME_MESSAGE;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
@@ -15,6 +18,8 @@ import javax.validation.Valid;
 
 import org.nww.app.AbstractApplicationController;
 import org.nww.core.system.OperationResult.State;
+import org.nww.modules.files.orm.FileInformation;
+import org.nww.modules.files.orm.FileManager;
 import org.nww.modules.profiles.orm.Profile;
 import org.nww.modules.profiles.orm.ProfileManager;
 import org.nww.modules.search.orm.suppliers.ES_Supplier;
@@ -45,6 +50,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
@@ -74,6 +80,9 @@ public class SupplierController extends AbstractApplicationController {
 	
 	@Resource(name = "URLUtilsService")
 	private URLUtilsService urlUtilsService;
+	
+	@Autowired
+	private FileManager fileMgr;
 	
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
@@ -124,7 +133,9 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/create.do", method = RequestMethod.POST)
-	public String createDo(@Valid @ModelAttribute("SupplierForm") SupplierForm form, 
+	public String createDo(
+			@RequestParam(name = "file", required = true) MultipartFile file,
+			@Valid @ModelAttribute("SupplierForm") SupplierForm form, 
 			BindingResult bindingResult, 
 			RedirectAttributes redirectAttributes,
 			Model model) {
@@ -139,7 +150,22 @@ public class SupplierController extends AbstractApplicationController {
 		}
 		
 		if(!bindingResult.hasErrors()) {
+			// handle file upload
+			FileInformation logoImage = null;
+			if(null != file) {
+				// first parameter is file name that should be set automatically
+				try {
+					logoImage = fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getShared(), file.getBytes(), file.getContentType());
+				} catch (IOException e) {
+					logger.error("Could not upload file " + e.getMessage());
+				}
+			}
+			
 			Supplier s = mapper.mapToPersistentObject(form);
+			
+			if(null != logoImage) {
+				s.setLogoFileInformation(logoImage);
+			}
 			
 			if(supplierMgr.save(s).getResultState() == State.SUCCESSFULL) {
 				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SSC");
@@ -184,20 +210,22 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{name}/edit", method = RequestMethod.GET)
-	public String edit(@PathVariable("name") String name, RedirectAttributes redirectAttributes, Model model) {
-		Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
-		
-		if(null == s) {
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
-			return REDIRECT_TO_SUPPLIERS;
-		}
-		
-		SupplierForm form = mapper.mapToForm(s);
-		
-		model.addAttribute("Supplier", s);
-		model.addAttribute("SupplierForm", form);
-		
-		return "suppliers/editSupplier";
+	public CompletionStage<String> edit(@PathVariable("name") String name, RedirectAttributes redirectAttributes, Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
+			
+			if(null == s) {
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
+				return REDIRECT_TO_SUPPLIERS;
+			}
+			
+			SupplierForm form = mapper.mapToForm(s);
+			
+			model.addAttribute("Supplier", s);
+			model.addAttribute("SupplierForm", form);
+			
+			return "suppliers/editSupplier";
+		});
 	}
 	
 	/**
@@ -209,36 +237,61 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/{name}/edit.do", method = RequestMethod.POST)
-	public String editDo(@Valid @ModelAttribute("SupplierForm") SupplierForm form, BindingResult bindingResult,
+	public CompletionStage<String> editDo(
+			@RequestParam(name = "file", required = true) MultipartFile file,
+			@RequestParam(name = "removeImage", required = false) boolean removeImage,
+			@Valid @ModelAttribute("SupplierForm") SupplierForm form, 
+			BindingResult bindingResult,
 			RedirectAttributes redirectAttributes, Model model) {
 		
-		Supplier s = supplierMgr.findOne(form.getUUID());
-		if(null == s) {
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
-			return REDIRECT_TO_SUPPLIERS;
-		}
-		
-		// check company name to be unique
-		Supplier possibleDuplicate = supplierMgr.findByName(form.getName()); 
-		if(possibleDuplicate != null && !possibleDuplicate.getUUID().equals(form.getUUID())) {
-			bindingResult.addError(new FieldError("SupplierForm", 
-					"name", 
-					form.getName(), false, new String[0], new Object[0],
-					"Ein Lieferant mit diesem Namen ist bereits registriert."));
-			model.addAttribute("BindingResult", bindingResult);
-		}
-		
-		if(!bindingResult.hasErrors()) {
-			s = mapper.mapToExistingPersistentObject(form, s);
+		return CompletableFuture.supplyAsync(() -> {
 			
-			if(supplierMgr.save(s).getResultState() == State.SUCCESSFULL) {
-				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SSE");
+			Supplier s = supplierMgr.findOne(form.getUUID());
+			if(null == s) {
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
 				return REDIRECT_TO_SUPPLIERS;
 			}
-		}
-		
-		model.addAttribute("Supplier", s);
-		return "suppliers/editSupplier";
+			
+			// check company name to be unique
+			Supplier possibleDuplicate = supplierMgr.findByName(form.getName()); 
+			if(possibleDuplicate != null && !possibleDuplicate.getUUID().equals(form.getUUID())) {
+				bindingResult.addError(new FieldError("SupplierForm", 
+						"name", 
+						form.getName(), false, new String[0], new Object[0],
+						"Ein Lieferant mit diesem Namen ist bereits registriert."));
+				model.addAttribute("BindingResult", bindingResult);
+			}
+			
+			if(!bindingResult.hasErrors()) {
+				// handle file upload
+				FileInformation logoImage = null;
+				if(null != file) {
+					// first parameter is file name that should be set automatically
+					try {
+						logoImage = fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getShared(), file.getBytes(), file.getContentType());
+					} catch (IOException e) {
+						logger.error("Could not upload file " + e.getMessage());
+					}
+				}
+				if(s.hasLogo()) {
+					// delete old logo before storing the new one
+					if(null != logoImage || removeImage) {
+						fileMgr.deleteFile(s.getLogoFileInformation());
+					}
+					s.setLogoFileInformation(logoImage);
+				}
+				
+				s = mapper.mapToExistingPersistentObject(form, s);
+				
+				if(supplierMgr.save(s).getResultState() == State.SUCCESSFULL) {
+					redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SSE");
+					return REDIRECT_TO_SUPPLIERS;
+				}
+			}
+			
+			model.addAttribute("Supplier", s);
+			return "suppliers/editSupplier";
+		});
 	}
 	
 	/**
@@ -276,6 +329,9 @@ public class SupplierController extends AbstractApplicationController {
 			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
 		}
 		else {
+			if(s.hasLogo()) {
+				fileMgr.deleteFile(s.getLogoFileInformation());
+			}
 			supplierMgr.delete(s);
 			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SDS");
 		}
@@ -342,13 +398,20 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/byuser/{uname}/edit")
+	@RequestMapping(value = "/byuser/{uname}/edit", method = RequestMethod.GET)
 	public String editUsersSuppliers(@PathVariable("uname") String uName, RedirectAttributes redirectAttributes, Model model) {
 		User u = getUserManager().findByUsername(uName);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		// mapper & manager are aware of profile beeing null!!
@@ -381,7 +444,14 @@ public class SupplierController extends AbstractApplicationController {
 		
 		if(null == u) {
 			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
-			return "redirect:/network/";
+			return REDIRECT_TO_NETWORK;
+		}
+		
+		User currentUser = populateCurrentUser();
+		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+			// user is not allowed to edit the requested profile
+			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+			return REDIRECT_TO_NETWORK;
 		}
 		
 		if(!bindingResult.hasErrors()) {

@@ -87,46 +87,46 @@ public interface Project extends ExtensiblePersistentObject {
 	/**
 	 * @return the project start date
 	 */
-	public Date getProjectStart();
+	public Date getStart();
 	
 	/**
 	 * Set the project start date.
 	 * @param start the project start date
 	 */
-	public void setProjectStart(Date start);
+	public void setStart(Date start);
 	
 	/**
 	 * @return the project end date
 	 */
-	public Date getProjectEnd();
+	public Date getEnd();
 	
 	/**
 	 * Set the project end date.
 	 * @param end the end date
 	 */
-	public void setProjectEnd(Date end);
+	public void setEnd(Date end);
 	
 	/**
 	 * @return the project location
 	 */
-	public String getProjectLocation();
+	public String getLocation();
 	
 	/**
 	 * Set the project location.
 	 * @param location the location
 	 */
-	public void setProjectLocation(String location);
+	public void setLocation(String location);
 	
 	/**
 	 * @return the projects customer name
 	 */
-	public String getProjectCustomer();
+	public String getCustomer();
 	
 	/**
 	 * Set the projects customer name.
 	 * @param customer the customer name
 	 */
-	public void setProjectCustomer(String customer);
+	public void setCustomer(String customer);
 	
 	/**
 	 * @return list of supplier data
@@ -154,23 +154,58 @@ public interface Project extends ExtensiblePersistentObject {
 	/**
 	 * @return list of gallery files
 	 */
-	public List<ProjectFileData> getGallery();
+	public List<ProjectFileData> getImages();
 	
 	/**
-	 * Set the list of gallery files.
+	 * Set the list of image files.
 	 * @param files list of file information objects
 	 */
-	public void setGallery(List<ProjectFileData> files);
+	public void setImages(List<ProjectFileData> files);
 	
 	/**
-	 * Add a new file information object to the gallery.
+	 * Add a new file information object to the image list.
 	 * @param file the file information object to be added
 	 */
-	public void addGalleryFile(ProjectFileData file);
+	public void addImageFile(ProjectFileData file);
 	
 	/**
-	 * Remove a file information object from the gallery.
+	 * Remove a file information object from the image list.
 	 * @param file the file information object to be removed
 	 */
-	public void removeGalleryFile(FileInformation file);
+	public void removeImageFile(FileInformation file);
+
+	/**
+	 * @return true if there is a description given
+	 */
+	public boolean hasDescription();
+	
+	/**
+	 * @return true if there is a customer information given
+	 */
+	public boolean hasCustomer();
+	
+	/**
+	 * @return true if there is a location information given
+	 */
+	public boolean hasLocation();
+	
+	/**
+	 * @return true if there is an end date configured
+	 */
+	public boolean hasEndDate();
+	
+	/**
+	 * @return true if the project has at least one additional participant
+	 */
+	public boolean hasParticipants();
+	
+	/**
+	 * @return true if the project has at least one supplier
+	 */
+	public boolean hasSuppliers();
+	
+	/**
+	 * @return true if the project has at least one image
+	 */
+	public boolean hasImages();
 }

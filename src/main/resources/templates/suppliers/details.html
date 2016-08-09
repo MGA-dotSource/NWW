@@ -12,7 +12,7 @@
 </head>
 <body>
 	<th:block th:fragment="content">
-		<th:block th:include="/users/inc/profileNotifications"></th:block>
+		<th:block th:include="users/inc/profileNotifications"></th:block>
 		<div class="row wrapper border-bottom white-bg page-heading">
 			<div class="col-lg-9">
 				<h2 th:text="${Supplier.Name}">Lieferanten Name</h2>
@@ -57,8 +57,10 @@
                            	</span>
                         </div>
 						<div>
-                        	<div class="ibox-content no-padding border-left-right">
-								<img alt="image" class="img-responsive" src="img/profile_big.jpg" th:if="${Supplier.hasLogo()}"/>
+                        	<div class="ibox-content no-padding border-left-right text-center">
+								<img th:alt="${Supplier.Name}" class="m-t-xs"
+										th:if="${Supplier.hasLogo()}"
+										th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(Supplier.LogoFileInformationUUID)} + '_250'__}" />
 								<div class="text-center m-t-sm" th:unless="${Supplier.hasLogo()}">
 									<i class="fa fa-4x fa-industry placeholder" title="Noch kein Firmenlogo hinterlegt"></i>
 								</div>
@@ -73,7 +75,7 @@
 	                            <div class="user-button" th:if="${Supplier.hasHomepage()}">
 		                            <div class="row">
 		                            	<div class="col-sm-6 col-sm-offset-6">
-		                            		<a class="btn btn-white btn-sm btn-block" th:href="${Supplier.Homepage}">
+		                            		<a class="btn btn-white btn-sm btn-block" th:href="${Supplier.Homepage}" target="_blank">
 		                            			<i class="fa fa-home m-r-sm"></i>
 		                            			zur Homepage
 	                            			</a>

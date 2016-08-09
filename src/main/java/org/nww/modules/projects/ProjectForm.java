@@ -15,12 +15,14 @@ import org.nww.modules.projects.orm.Project;
 import org.nww.modules.projects.orm.ProjectFileData;
 import org.nww.modules.projects.orm.ProjectParticipantData;
 import org.nww.modules.projects.orm.ProjectSupplierData;
+import org.nww.modules.projects.validation.UniqueName;
 import org.springframework.format.annotation.DateTimeFormat;
 
 /**
  * Provides form validation fields for {@link Project} instances.
  * @author mga
  */
+@UniqueName
 public class ProjectForm extends AbstractPersistentObjectForm {
 	@Length(min = 1, max = 100)
 	private String name;
@@ -41,7 +43,7 @@ public class ProjectForm extends AbstractPersistentObjectForm {
 
 	private List<ProjectParticipantData> participants = new ArrayList<>();
 	private List<ProjectSupplierData> suppliers = new ArrayList<>();
-	private List<ProjectFileData> gallery = new ArrayList<>();
+	private List<ProjectFileData> images = new ArrayList<>();
 	
 	/**
 	 * @return the name
@@ -170,16 +172,16 @@ public class ProjectForm extends AbstractPersistentObjectForm {
 	}
 	
 	/**
-	 * @return the gallery
+	 * @return the images
 	 */
-	public List<ProjectFileData> getGallery() {
-		return gallery;
+	public List<ProjectFileData> getImages() {
+		return images;
 	}
 
 	/**
-	 * @param gallery the gallery to set
+	 * @param images images to set
 	 */
-	public void setGallery(List<ProjectFileData> gallery) {
-		this.gallery = gallery;
+	public void setImages(List<ProjectFileData> images) {
+		this.images = images;
 	}
 }

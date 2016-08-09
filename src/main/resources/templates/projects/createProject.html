@@ -8,25 +8,26 @@
 		<link th:href="@{/css/plugins/summernote/summernote.css}" rel="stylesheet" />
 		<link th:href="@{/css/plugins/summernote/summernote-bs3.css}" rel="stylesheet" />
 		<link th:href="@{/css/plugins/datepicker/datepicker3.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/autocomplete/autocomplete.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/dropzone/basic.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/dropzone/dropzone.css}" rel="stylesheet" />
 	</th:block>
 	<th:block th:fragment="scripts">
 		<script th:src="@{/js/plugins/summernote/summernote.min.js}"></script>
 		<script th:src="@{/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+		<script th:src="@{/js/plugins/autocomplete/autocomplete.min.js}"></script>
+		<script th:src="@{/js/plugins/dropzone/dropzone.js}"></script>
 		<script th:src="@{/js/custom.js}"></script>
-		<script type="text/javascript">
+		<script th:src="@{/js/modules/projects.js}"></script>
+		<script type="text/javascript" th:inline="javascript">
 			$(document).ready(function() {
-				$('.input-group.date').datepicker({
-	                todayBtn: "linked",
-	                keyboardNavigation: false,
-	                forceParse: false,
-	                calendarWeeks: true,
-	                autoclose: true,
-	                format: 'dd.mm.yyyy'
-	            });
-				
-				$('button[data-form-submit-action]').click(function() {
-					var newFormAction = $(this).attr('data-form-submit-action');
-					$(this).parentsUntil('form').parent().attr('action', newFormAction);
+				$('input[id^="Suppliers"]').autocomplete({
+					serviceUrl : /*[[@{/network/suppliers/autocomplete}]]*/,
+					paramName: 'q',
+					onSelect : function (suggestion) {
+						// suggestion.value -> texttuelle Anzeige
+						// suggestion.data -> supplier object aus DB
+					}
 				});
 			});
 		</script>
@@ -34,7 +35,7 @@
 </head>
 <body>
 	<th:block th:fragment="content">
-		<th:block th:include="/projects/inc/projectNotifications"></th:block>
+		<th:block th:include="projects/inc/projectNotifications"></th:block>
 		<div class="row wrapper border-bottom white-bg page-heading">
 			<div class="col-lg-9">
 				<h2>Projekte</h2>

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	th:include="backend/layout :: layout">
+<head>
+	<title th:fragment="title" th:text="'Projekte | NETZWERK wohnen'"></title>
+	<th:block th:fragment="styles">
+		<link th:href="@{/css/plugins/summernote/summernote.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/summernote/summernote-bs3.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/datepicker/datepicker3.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/autocomplete/autocomplete.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/dropzone/basic.css}" rel="stylesheet" />
+		<link th:href="@{/css/plugins/dropzone/dropzone.css}" rel="stylesheet" />
+	</th:block>
+	<th:block th:fragment="scripts">
+		<script th:src="@{/js/plugins/summernote/summernote.min.js}"></script>
+		<script th:src="@{/js/plugins/datepicker/bootstrap-datepicker.js}"></script>
+		<script th:src="@{/js/plugins/autocomplete/autocomplete.min.js}"></script>
+		<script th:src="@{/js/plugins/dropzone/dropzone.js}"></script>
+		<script th:src="@{/js/custom.js}"></script>
+		<script th:src="@{/js/modules/projects.js}"></script>
+		<script type="text/javascript" th:inline="javascript">
+			$(document).ready(function() {
+				$('input[id^="Suppliers"]').autocomplete({
+					serviceUrl : /*[[@{/network/suppliers/autocomplete}]]*/,
+					paramName: 'q',
+					onSelect : function (suggestion) {
+						// suggestion.value -> texttuelle Anzeige
+						// suggestion.data -> supplier object aus DB
+						console.log(suggestion.data);
+					}
+				});
+			});
+		</script>
+	</th:block>
+</head>
+<body>
+	<th:block th:fragment="content">
+		<th:block th:include="projects/inc/projectNotifications"></th:block>
+		<div class="row wrapper border-bottom white-bg page-heading">
+			<div class="col-lg-9">
+				<h2>Projekte</h2>
+				<ol class="breadcrumb">
+					<li>
+						<a th:href="@{/network}">Dashboard</a>
+					</li>
+					<li>
+						<a th:href="@{/network/projects/}">Projekte</a>
+					</li>
+					<li class="active">
+						<strong>
+							Project bearbeiten:
+							<span th:text="${ProjectForm.Name}"></span>	
+						</strong>
+					</li>
+				</ol>
+			</div>
+		</div>
+		<div class="wrapper wrapper-content animated fadeIn">
+			<div class="row">
+				<form method="POST" th:action="@{/network/projects/edit.do}" 
+						th:object="${ProjectForm}" data-ref="project-form"
+						class="form-horizontal">
+					<th:block th:include="projects/inc/projectForm"></th:block>
+				</form>
+			</div>
+		</div>
+	</th:block>
+</body>
+</html>

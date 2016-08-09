@@ -37,6 +37,12 @@ public class FileManagerImpl
 	@Value("${nww.host}")
 	private String hostNamePropertyValue;
 	
+	@Value("${nww.vfs.temp:temp}")
+	private String tempFolderLocalPath;
+
+	@Value("${nww.vfs.shared:shared}")
+	private String sharedFolderLocalPath;
+	
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@PostConstruct
@@ -44,9 +50,10 @@ public class FileManagerImpl
 		Path root = Paths.get(getRoot());
 		
 		if(!Files.exists(root)) {
-			log.debug("VFS root path does not exist - trying to create!");
+			log.debug("VFS root path does not exist - trying to create..");
 			try {
 				Files.createDirectories(root);
+				log.debug("VFS root path created successfully!");
 			} catch (IOException e) {
 				log.error("Could not create VFS root path '" + root + "'", e);
 			}
@@ -75,6 +82,41 @@ public class FileManagerImpl
 	@Override
 	public String getRoot() {
 		return this.nwwVfsRootPropertyValue;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.files.orm.FileManager#getTemp()
+	 */
+	@Override
+	public String getTemp() {
+		return this.tempFolderLocalPath;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.files.orm.FileManager#getShared()
+	 */
+	@Override
+	public String getShared() {
+		return this.sharedFolderLocalPath;
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.files.orm.FileManager#isFileInTemp(java.lang.String)
+	 */
+	@Override
+	public boolean isFileInTemp(String uuid) {
+		return isFileInTemp(findOne(uuid));
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.nww.modules.files.orm.FileManager#isFileInTemp(org.nww.modules.files.orm.FileInformation)
+	 */
+	@Override
+	public boolean isFileInTemp(FileInformation fi) {
+		if(null == fi) {
+			return false;
+		}
+		return getTemp().equals(fi.getLocalPath());
 	}
 
 	/* (non-Javadoc)
@@ -178,8 +220,6 @@ public class FileManagerImpl
 		// first generate empty FileInformation object to gather a UUID
 		FileInformation fi = (FileInformation) save(createNew()).getAffectedObject();
 		
-		// check fi here -> gets stored 2x!! :((((
-		
 		// now set values / or fallbacks
 		fi.setName(!StringUtils.isEmpty(name) ? name : fi.getUUID());
 		fi.setOriginalName(originalName);
@@ -270,9 +310,18 @@ public class FileManagerImpl
 		boolean isExisting = null != getRepository().findByLocalPathAndName(targetFolderPath, targetName);
 		
 		if(!isExisting) {
+			Path currentPath = getFilePath(source);
+			
 			source.setLocalPath(targetFolderPath);
 			source.setName(targetName);
 			if(save(source).getResultState() == State.SUCCESSFULL) {
+				
+				try {
+					Files.move(currentPath, getFilePath(source));
+				} catch (IOException e) {
+					log.error("Could not move file from \"" + currentPath + "\" to \"" + getFilePath(source) + "\": ", e);
+				}
+				
 				return source;
 			}
 		}

@@ -22,6 +22,30 @@ public interface FileManager extends PersistentObjectManager<FileInformation, Fi
 	public String getRoot();
 	
 	/**
+	 * @return the file system temporary path
+	 */
+	public String getTemp();
+	
+	/**
+	 * @return the file system shared path
+	 */
+	public String getShared();
+	
+	/**
+	 * Check if the file with the passed file information UUID is located in the current temporary directory.
+	 * @param uuid the file information UUID
+	 * @return true if it is in the current temporary folder
+	 */
+	public boolean isFileInTemp(String uuid);
+	
+	/**
+	 * Check if the file is located in the current temporary directory.
+	 * @param fi the file information object
+	 * @return true if it is in the current temporary folder
+	 */
+	public boolean isFileInTemp(FileInformation fi);
+	
+	/**
 	 * Find the file information for the passed local path.
 	 * @param localPath the local path
 	 * @param name the virtual file name

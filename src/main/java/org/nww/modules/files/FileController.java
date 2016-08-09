@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -20,7 +22,6 @@ import org.nww.modules.files.orm.FileManager;
 import org.nww.services.files.ImageFileService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -46,9 +47,6 @@ public class FileController extends AbstractController {
 	@Resource(name = "ImageFileService")
 	private ImageFileService imageFileService;
 	
-	@Value("${nww.vfs.shared}")
-	private String sharedFolderName;
-	
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	/**
@@ -67,26 +65,28 @@ public class FileController extends AbstractController {
 
 	@RequestMapping(value = "/**", method = { RequestMethod.GET })
 	@ResponseBody
-	public FileSystemResource handleFileRequest(HttpServletRequest request, Model model) throws MalformedURLException, FileNotFoundException {
-		String path = request.getRequestURI();
-		String localPath = path.substring(0, path.lastIndexOf("/")).replaceAll("/files/", "");
-		
-		String filename = path.substring(path.lastIndexOf("/") + 1);
-		FileRequestInformation fri = new FileRequestInformation(filename);
-		
-		FileInformation fi = getFileMgr().findByLocalPath(localPath, fri.getPurName());
-		
-		if(null != fi) {
-			// get possible resized image
-			fi = getOrCreateResizedImage(fri, fi);
-			File f = getFileMgr().getFile(fi);
+	public CompletionStage<FileSystemResource> handleFileRequest(HttpServletRequest request, Model model) throws MalformedURLException, FileNotFoundException {
+		return CompletableFuture.supplyAsync(() -> {
+			String path = request.getRequestURI();
+			String localPath = path.substring(0, path.lastIndexOf("/")).replaceAll("/files/", "");
 			
-			return new FileSystemResource(f);
-		}
-		
-		log.error("Could not find file for URL '" + path + "'");
-		
-		return null;
+			String filename = path.substring(path.lastIndexOf("/") + 1);
+			FileRequestInformation fri = new FileRequestInformation(filename);
+			
+			FileInformation fi = getFileMgr().findByLocalPath(localPath, fri.getPurName());
+			
+			if(null != fi) {
+				// get possible resized image
+				fi = getOrCreateResizedImage(fri, fi);
+				File f = getFileMgr().getFile(fi);
+				
+				return new FileSystemResource(f);
+			}
+			
+			log.error("Could not find file for URL '" + path + "'");
+			
+			return null;
+		});			
 	}
 	
 	@RequestMapping(value = "/upload.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
@@ -96,7 +96,7 @@ public class FileController extends AbstractController {
 			FileInformation fi = null;
 			
 			try {
-				fi = fileMgr.saveFile(sharedFolderName, file.getBytes(), file.getContentType());
+				fi = fileMgr.saveFile(fileMgr.getShared(), file.getBytes(), file.getContentType());
 
 				return new FileUploadResult(true, fileMgr.createAbsoluteDownloadUrl(fi));
 			} catch (IOException e) {
@@ -108,6 +108,12 @@ public class FileController extends AbstractController {
 	}
 
 	private FileInformation getOrCreateResizedImage(FileRequestInformation fri, FileInformation purFileInfo) {
+		
+		// files in temp will never be resized
+		if(fileMgr.isFileInTemp(purFileInfo)) {
+			return purFileInfo;
+		}
+		
 		if(imageFileService.isImageFile(purFileInfo) && fri.getAttributeCount() >= 1) {
 			
 			// check resized image already exists
@@ -155,7 +161,7 @@ public class FileController extends AbstractController {
 					: imageFileService.resizeImage(imageFileService.getImageFromFile(getFileMgr().getFile(orig)), width);
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			ImageIO.write(resizedImage, ImageIO.getImageReadersByMIMEType(orig.getContentType()).next().getFormatName() , baos);
-			resizedOrig = getFileMgr().saveFile("profiles", baos.toByteArray(), orig.getContentType());
+			resizedOrig = getFileMgr().saveFile(orig.getLocalPath(), baos.toByteArray(), orig.getContentType());
 			
 			// update original file info
 			orig.setString(createSizedImageAttributeName(fri), resizedOrig.getUUID());
