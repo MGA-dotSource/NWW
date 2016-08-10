@@ -74,6 +74,10 @@ task wrapper(type: Wrapper) {
     gradleVersion = '2.3'
 }
 
+test { 
+	finalizedBy jacocoTestReport 
+}
+
 jacoco {
     toolVersion = "0.7.4+"
     reportsDir = file("$buildDir/reports/jacoco")
