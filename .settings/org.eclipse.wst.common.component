@@ -6,6 +6,7 @@
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
 		<dependent-module deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/C:/Users/mirco_000/.gradle/caches/modules-2/files-2.1/org.springframework.data/spring-data-mongodb/1.8.1.RELEASE/b90c75c49d1271c06e95ba635b73882237d3c262/spring-data-mongodb-1.8.1.RELEASE.jar">
 			<dependency-type>uses</dependency-type>
 		</dependent-module>

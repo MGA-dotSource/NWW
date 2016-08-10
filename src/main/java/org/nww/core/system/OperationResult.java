@@ -62,7 +62,7 @@ public class OperationResult {
      * @param exception a possible thrown exception
      */
     public OperationResult(State resultState, Long affectedEntitiesCount, Exception exception) {
-        this(resultState, affectedEntitiesCount, "", "", null);
+        this(resultState, affectedEntitiesCount, "", "", null, exception);
     }
 
     /**
