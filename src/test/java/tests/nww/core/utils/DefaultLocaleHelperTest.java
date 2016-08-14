@@ -3,10 +3,7 @@
  */
 package tests.nww.core.utils;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +24,14 @@ public class DefaultLocaleHelperTest {
 	public void getLocaleID() throws Exception {
 		LocaleHelper lh = new DefaultLocaleHelper();
 
-		assertThat(lh.getLocaleID(Locale.GERMANY), equalTo("de_DE"));
+		assertThat(lh.getLocaleID(Locale.GERMANY)).isEqualTo("de_DE");
 	}
 	
 	@Test
 	public void getLocaleByID() {
 		LocaleHelper lh = new DefaultLocaleHelper();
 
-		assertThat(lh.getLocaleByID("de_DE"), equalTo(Locale.GERMANY));
+		assertThat(lh.getLocaleByID("de_DE")).isEqualTo(Locale.GERMANY);
 	}
 	
 	@Test
@@ -45,10 +42,17 @@ public class DefaultLocaleHelperTest {
 		expectedLocales.add(Locale.US);
 		
 		List<Locale> createdLocales = lh.getLocalesByIDs("de_DE", "en_US");
-		assertNotNull(createdLocales);
-		assertThat(createdLocales.size(), is(expectedLocales.size()));
+		assertThat(createdLocales).isNotNull();
+		assertThat(createdLocales.size()).isEqualTo(expectedLocales.size());
 		expectedLocales.forEach(l -> {
-			assertThat(createdLocales.contains(l), is(true));
+			assertThat(createdLocales.contains(l)).isTrue();
 		});
+	}
+	
+	@Test
+	public void nullCheck() {
+		LocaleHelper lh = new DefaultLocaleHelper();
+		assertThat(lh.getLocaleByID("")).isNull();
+		assertThat(lh.getLocaleByID(null)).isNull();
 	}
 }
