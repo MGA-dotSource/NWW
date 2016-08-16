@@ -17,9 +17,6 @@ import org.nww.core.data.AbstractPersistentObject;
  */
 public abstract class AbstractPersistentObjectTest {
 	
-	/**
-	 * 
-	 */
 	private static final String UUID = "uuid";
 	private static final Date LM_DATE = new Date();
 

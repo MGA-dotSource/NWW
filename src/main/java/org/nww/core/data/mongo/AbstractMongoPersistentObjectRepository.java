@@ -22,8 +22,16 @@ import org.springframework.data.mongodb.core.query.Query;
  */
 public abstract class AbstractMongoPersistentObjectRepository<T extends PersistentObject> implements PersistentObjectRepository<T> {
 
-	@Autowired
     private MongoOperations mongoOperations;
+	
+	/* (non-Javadoc)
+	 * @see org.nww.core.data.PersistentObjectRepository#setMongoOperations(org.springframework.data.mongodb.core.MongoOperations)
+	 */
+	
+    @Autowired @Override
+	public void setMongoOperations(MongoOperations operations) {
+		this.mongoOperations = operations;
+	}
 	
 	/**
 	 * Get the mongo connector class that allows querying and manipulating the stored data.

@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -31,6 +32,13 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  */
 @NoRepositoryBean
 public interface PersistentObjectRepository<T extends PersistentObject> extends PagingAndSortingRepository<T, String> {
+	
+	/**
+	 * Set the {@link MongoOperations} object used to connect to the underlying database.
+	 * @param operations the connection handler
+	 */
+	public void setMongoOperations(MongoOperations operations);
+	
 	/**
 	 * Creates a new instance of the repositorys data type.
 	 * @return a new instance of the managed pojo data type
