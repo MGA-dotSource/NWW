@@ -69,7 +69,10 @@
 		<script type="text/javascript" th:inline="javascript">
 			/*<![CDATA[*/
 			// cleanup possible toastr parameters (e / m)
-			if(window.location.href.lastIndexOf('m=') > 0 || window.location.href.lastIndexOf('e=') > 0) {
+			if(window.location.href.lastIndexOf('?m=') > 0 
+					|| window.location.href.lastIndexOf('&m=') > 0
+					|| window.location.href.lastIndexOf('?e=') > 0
+					|| window.location.href.lastIndexOf('&e=') > 0) {
 				if(window.history && window.history.replaceState) {
 					 window.history.replaceState("object or string", "", window.location.pathname);				
 				}

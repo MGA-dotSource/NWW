@@ -29,7 +29,14 @@ $(document).ready(function() {
 	// Change hash for page-reload
 	$('.nav-tabs a').on('shown.bs.tab', function (e) {
 		window.location.hash = e.target.hash;
-	})	
+	});
+	
+	// init sorting indicators
+	$('.sorted:not(.sorted-asc):not(.sorted-desc)').before('<i class="fa fa-sort fa-fw m-r-xs"></i>');
+	$('.sorted.alpha.sorted-asc').before('<i class="fa fa-sort-alpha-asc m-r-xs"></i>');
+	$('.sorted.sorted-asc:not(.alpha)').before('<i class="fa fa-sort-amount-asc m-r-xs"></i>');
+	$('.sorted.alpha.sorted-desc').before('<i class="fa fa-sort-alpha-desc m-r-xs"></i>');
+	$('.sorted.sorted-desc:not(.alpha)').before('<i class="fa fa-sort-amount-desc m-r-xs"></i>');
 });
 
 var formHandler = {

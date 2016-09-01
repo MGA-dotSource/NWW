@@ -49,8 +49,9 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-thymeleaf') {
     	exclude group: "org.javassist", module: "javassist"
     }
-    compile("org.springframework.boot:spring-boot-starter-web")
     compile("org.thymeleaf.extras:thymeleaf-extras-springsecurity4")
+    compile("io.github.jpenren:thymeleaf-spring-data-dialect:2.1.1")
+    compile("org.springframework.boot:spring-boot-starter-web")    
     compile("org.springframework.boot:spring-boot-starter-actuator")
     
     compile("org.jsoup:jsoup:1.8.3")

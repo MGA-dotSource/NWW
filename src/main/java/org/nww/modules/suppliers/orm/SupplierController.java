@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
 import org.nww.app.AbstractApplicationController;
 import org.nww.core.system.OperationResult.State;
 import org.nww.modules.files.orm.FileInformation;
@@ -39,7 +40,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.web.SortDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -95,17 +98,23 @@ public class SupplierController extends AbstractApplicationController {
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String showListPage(
-			@RequestParam(name = "p", required = false, defaultValue = "1") Integer page, 
-			@RequestParam(name = "ps", required = false, defaultValue = "100") Integer pageSize, 
+			@SortDefault("name") Pageable pageable,
+			@RequestParam(name = "q", required = false) String query, 
 			Model model) {
 		
-		Pageable pagingInfo = new PageRequest(--page, pageSize, Direction.ASC, "name");
+		Query q = new Query();
+		Criteria criteria = new Criteria();
+		if(!populateCurrentUser().isAdmin()) {
+			criteria.and("approvalState").is(Supplier.STATUS_APPROVED);
+		}
+		if(StringUtils.isNotEmpty(query)) {
+			criteria.and("name").regex(query, "i");
+		}
+		q.addCriteria(criteria);
 		
-		Page<? extends Supplier> suppliers = populateCurrentUser().isAdmin() 
-				? supplierMgr.findAll(pagingInfo)
-				: supplierMgr.findByApprovalState(Supplier.STATUS_APPROVED, pagingInfo);
+		Page<? extends Supplier> suppliers = supplierMgr.findAllByQuery(q, pageable);
 				
-		model.addAttribute("Suppliers", suppliers);
+		model.addAttribute("page", suppliers);
 		
 		return "suppliers/supplierList";
 	}

@@ -72,6 +72,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.thymeleaf.dialect.springdata.SpringDataDialect;
 
 /**
  * The bean setup class for this application.
@@ -85,13 +86,13 @@ public class ApplicationBeanConfig {
 	@Value("${nww.resources.messages.cachetime}")
 	private int resourceBundleCacheTime;
 	
-	/*********************************
-	 * FIX for not trimmed supplier names runs only once after deployment
-	 */
-	//@Bean
-	//public SupplierNamesUpdateScheduler setupSupplierNamesUpdateScheduler() {
-	//	return new SupplierNamesUpdateScheduler();
-	//}
+	/*************************************************\
+	 * THYMELEAF
+	\*************************************************/
+	@Bean
+	public SpringDataDialect springDataDialect() {
+		return new SpringDataDialect();
+	}
 	
 	/*************************************************\
 	 * HELPER
