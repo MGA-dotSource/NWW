@@ -1,0 +1,3 @@
+spring:
+  application:
+    name: nww_search_service

@@ -1,0 +1,215 @@
+@CHARSET "UTF-8";
+.wrapper-content {
+	overflow: hidden;
+}
+.nav > li .btn-logout {
+  	color: #a7b1c2;
+  	font-weight: 600;
+  	padding: 14px 20px 14px 25px;
+}
+.nav.navbar-right > li .btn-logout {
+    color: #999c9e;
+}
+.nav > li.active .btn-logout {
+  	color: #ffffff;
+}
+.navbar-default .nav > li .btn-logout:hover,
+.navbar-default .nav > li .btn-logout:focus {
+  	background-color: #293846;
+  	color: white;
+}
+.nav-second-level li a {
+    padding-left: 60px;
+}
+.navbar-top-links li .btn-logout {
+    padding: 20px 10px;
+    min-height: 50px;
+}
+#side-menu .profile-element {
+	text-align: center;
+}
+.profile-img-sm {
+	max-width: 61px;
+	max-height: 61px;
+}
+.profile-img-xs {
+	max-width: 32px;
+	max-height: 32px;
+}
+/* some summernote editor styles */
+.form-group .note-editor {
+	min-height: 100px;
+}
+.form-group .note-editor .note-editable {
+    border: 1px solid #e5e6e7;
+    padding: 10px;
+}
+.form-group.editor-no-tb .note-toolbar {
+	display: none;
+}
+.form-group .control-label span {
+	font-weight: 400;
+}
+.profile-image .edit {
+	position: absolute;
+    top: 70px;
+    left: 86px;
+}
+.img-preview-sm {
+	height: 150px;
+	width: 150px;
+	float: left;
+    margin-right: 20px;
+}
+.img-preview-circle {
+	border-radius: 50%;
+	height: 150px;
+	width: 150px;
+	margin-left: 20px;
+	border-left: 1px solid #e5e6e7;
+}
+.image-crop img {
+	max-width: 404px;
+}
+.alert.attached {
+	border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 0;
+}
+.contact-box {
+	position: relative;
+}
+.contact-box.fixed-height {
+	height: 351px;
+}
+.contact-box address {
+	height: 105px;
+}
+.contact-box .remove-user {
+	position: absolute; 
+	right: 10px; 
+	top: 10px;
+}
+.contact-box.center-version > a.remove-user {
+    padding: 6px 0;
+	text-align: center;
+	background-color: #ed5565;
+    border-color: #ed5565;
+    color: #FFFFFF;
+}
+.contact-box.center-version > a.remove-user:hover {
+	background-color: #ec4758;
+    border-color: #ec4758;
+    color: #FFFFFF;
+}
+.ibox .fa-star {
+	color: #ADFF2F;
+}
+.m-t-n-xs {
+	margin-top: -3px;
+}
+.form-control[name="highlightedSkills"] {
+	font-weight: 700;
+}
+.modal-footer.m-t-none {
+	margin-top: 0;
+}
+.note-editor img,
+.note-editor .note-handle .note-control-selection .note-control-selection-bg,
+.note-editor .note-handle .note-control-selection {
+	margin: 4px;
+}
+.placeholder {
+	color: #D3D3D3;
+}
+.user-img.placeholder.sm {
+	width: 96px;
+	height: 96px;
+	font-size: 6em;
+}
+.user-img.placeholder.md {
+	width: 80px;
+	height: 80px;
+	font-size: 5.8em;
+}
+.user-img.placeholder.xs {
+	width: 32px;
+	height: 32px;
+	font-size: 2.2em;
+}
+.user-img.placeholder.xxs {
+	width: 18px;
+	height: 18px;
+	font-size: 2em;
+}
+.display-ib {
+	display: inline-block;
+}
+.suppliers .select2-container {
+	margin-left: 20px;
+}
+.suppliers .supplier.box .icheckbox_square-green {
+	float: right;
+}
+.suppliers .supplier.box .img-wrapper {
+	margin-left: 20px;
+	margin-right: 20px;
+	margin-top: 30px;
+	height: 100px;
+	text-align: center;
+	white-space: nowrap;
+}
+.suppliers .supplier.box a {
+	color: inherit;
+}
+.suppliers .supplier.box img {
+	display: inline-block;
+	vertical-align: middle;
+}
+.suppliers .supplier.box h3 {
+	text-align: center;
+}
+.supplierList .label {
+	font-size: 1.0em;
+}
+.simple-errors {
+	color: #cc5965;
+	font-weight: bold;
+}
+.note-editor .progress.progress-xs {
+	height: 10px;
+}
+.note-editor .progress.progress-corners {
+	border-radius: 0;
+}
+pre.company-description {
+	border: 0;
+	font-family: inherit;
+}
+.nww-dz-clickable {
+	min-height: 310px;
+}
+.dropzone.dz-started .dz-message {
+	opacity: 1 !important;
+}
+#dropzone.dropzone .dz-default.dz-message {
+	background-image: none;
+	width: 450px;
+}
+#dropzone.dropzone .dz-default.dz-message span {
+	display: block;
+    font-size: 1.4em;
+}
+.project-preview-img {
+	max-width: 150px;
+	max-height: 75px;
+}
+.supplier-list-img {
+	max-width: 100px;
+	max-height: 50px;
+}
+.project-list .project-image {
+	width: 155px;
+}

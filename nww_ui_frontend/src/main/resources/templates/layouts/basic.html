@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="de"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta th:name="${_csrf.parameterName}" th:content="${_csrf.token}" th:if="${_csrf != null}"/>
+    <meta name="google-site-verification" content="lkuct9LlIFcNEBQ1LmdZfhYf7pNzix_vsji4-gIFCiY" />
+
+    <title th:replace="this :: title">NETZWERK wohnen - von Profis f&uuml;r Profis</title>
+
+    <link th:href="@{/css/bootstrap.min.css}" rel="stylesheet" />
+    <link th:href="@{/font-awesome/css/font-awesome.css}" rel="stylesheet" />
+    <link th:href="@{/css/animate.css}" rel="stylesheet" />
+    <link th:href="@{/css/style.css}" rel="stylesheet" />
+    <link th:href="@{/css/custom-frontend.css}" rel="stylesheet" />
+
+    <th:block th:include="this :: styles"></th:block>
+
+    <!-- Mainly scripts -->
+    <script th:src="@{/js/jquery-2.1.1.js}"></script>
+    <script th:src="@{js/bootstrap.min.js}"></script>
+    <script th:src="@{js/plugins/metisMenu/jquery.metisMenu.js}"></script>
+    <script th:src="@{js/plugins/slimscroll/jquery.slimscroll.min.js}"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script th:src="@{/js/inspinia.js}"></script>
+    <script th:src="@{/js/plugins/pace/pace.min.js}"></script>
+    <script th:src="@{/js/plugins/wow/wow.min.js}"></script>
+    <script th:src="@{/js/custom-frontend.js}"></script>
+
+    <th:block th:include="this :: scripts"></th:block>
+</head>
+<body id="page-top" th:classAppend="${BodyClass}">
+<!-- Piwik -->
+<script type="text/javascript"  th:if="${PiwikTrackingEnabled}">
+    var _paq = _paq || [];
+    _paq.push(['trackPageView']);
+    _paq.push(['enableLinkTracking']);
+    (function() {
+        var u="//piwik.mircogatz.de/";
+        _paq.push(['setTrackerUrl', u+'piwik.php']);
+        _paq.push(['setSiteId', 2]);
+        var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+        g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+    })();
+</script>
+<noscript  th:if="${PiwikTrackingEnabled}"><p><img src="//piwik.mircogatz.de/piwik.php?idsite=2" style="border:0;" alt="" /></p></noscript>
+<!-- End Piwik Code -->
+<!--/*
+<th:block th:include="frontend/mainMenu"></th:block>
+<th:block th:replace="this :: content"></th:block>
+<th:block th:include="frontend/footer"></th:block>
+<th:block th:replace="this :: footerScripts"></th:block>
+*/-->
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+    // cleanup possible toastr parameters (e / m)
+    if(window.location.href.lastIndexOf('m=') > 0 || window.location.href.lastIndexOf('e=') > 0) {
+        if(window.history && window.history.replaceState) {
+            window.history.replaceState("object or string", "", window.location.pathname);
+        }
+    }
+    /*]]>*/
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+.autocomplete-suggestions {
+	background-color: #FFF;
+	border: 1px solid #AAA;	
+}
+
+.autocomplete-suggestions .autocomplete-suggestion {
+	padding-left: 15px;
+	line-height: 25px;
+	cursor: pointer;
+}
+
+.autocomplete-suggestions .autocomplete-suggestion.autocomplete-selected {
+	background-color: #BBB;
+}
+
+.autocomplete-suggestions .autocomplete-suggestion strong {
+	padding-right: 2px;
+}

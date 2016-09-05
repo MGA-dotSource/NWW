@@ -1,0 +1,33 @@
+body.landing-page {
+	padding-top: 67px;
+}
+.landing-page .navbar.navbar-scroll .navbar-brand {
+    height: auto;
+    font-size: 14px;
+    padding: 15px 20px 15px 20px;
+    border-radius: 0 0 5px 5px;
+    margin-top: 0;
+}
+.landing-page section p.description {
+	font-size: 1.2em;
+	line-height: 25px;
+	padding-left: 10px;
+	padding-right: 10px;
+	color: #676A6C;
+}
+.landing-page .contact {
+	background-image: none;
+}
+.m-b-xlg {
+	margin-bottom: 70px;
+}
+.textarea-large {
+	min-height: 250px;
+}
+h1, .navbar-brand {
+	text-transform: uppercase;
+}
+#toast-container > .toast-error:before,
+#toast-container > .toast-success:before {
+	content : '' !important;
+}
