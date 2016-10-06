@@ -20,7 +20,7 @@
 					<small th:text="'Erstellt am ' + ${#dates.format(entry.CreationDate, 'dd.MM.yyyy HH:mm')}"></small>
 				</td>
 				<td class="project-people">
-					<a th:href="@{/network/users/{name}/ (name = ${entry.OwningUser.Username})}" th:title="${entry.OwningUser.DisplayName}">
+					<a th:href="@{/network/users/{userid}/ (userid = ${entry.OwningUser.UUID})}" th:title="${entry.OwningUser.DisplayName}">
 						<th:block th:include="users/inc/profileImages :: xs (${entry.OwningUser})"></th:block>
 					</a>
 				</td>

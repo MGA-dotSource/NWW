@@ -37,13 +37,13 @@
                             <h5>
                             	Details
 	                           	<a class="btn btn-warning btn-xs m-l-md m-t-n-xs"
-	                           			th:href="@{/network/suppliers/{name}/edit (name = ${@URLUtilsService.encodeURLSegments(Supplier.Name)})}" title="Bearbeiten"
+	                           			th:href="@{/network/suppliers/{supplierId}/edit (supplierId = ${Supplier.UUID})}" title="Bearbeiten"
 	                           			th:if="${CurrentUser.isAdmin()}">
 	                           		<i class="fa fa-pencil fa-fw"></i>
 	                       		</a>
 	                       		<a class="btn btn-danger btn-xs m-l-xs m-t-n-xs"
 	                       				data-toggle="modal" data-target="#modal"
-	                           			th:href="@{/network/suppliers/{name}/delete (name = ${@URLUtilsService.encodeURLSegments(Supplier.Name)})}" title="Löschen"
+	                           			th:href="@{/network/suppliers/{supplierId}/delete (supplierId = ${Supplier.UUID})}" title="Löschen"
 	                           			th:if="${CurrentUser.isAdmin()}">
 	                           		<i class="fa fa-remove fa-fw"></i>
 	                       		</a>

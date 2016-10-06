@@ -2,7 +2,7 @@
 	<div class="ibox float-e-margins">
 		<div class="ibox-title">
 			<h5>F&auml;higkeiten</h5>
-			<a th:href="@{/network/users/{name}/editSkills (name = ${User.Username})}"
+			<a th:href="@{/network/users/{userid}/editSkills (userid = ${User.UUID})}"
 					class="btn btn-warning btn-xs m-l-sm m-t-n-xs"
 					th:if="${CurrentUser.UUID == User.UUID OR CurrentUser.isAdmin()}">
 				<i class="fa fa-pencil fa-fw"></i>

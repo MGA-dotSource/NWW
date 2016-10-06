@@ -49,6 +49,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 			.antMatchers(HttpMethod.POST, "/register.do").permitAll()
+			.antMatchers("/api/**").permitAll()
 			.antMatchers("/files/upload.do").hasAnyRole(NETWORK_USERS)
 			.antMatchers("/files/**").permitAll()
 			.antMatchers("/error").permitAll()

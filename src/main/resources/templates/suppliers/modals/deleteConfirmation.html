@@ -13,7 +13,8 @@
 	</p>
 </div>
 <div class="modal-footer">
-	<form th:action="@{/network/suppliers/{name}/delete.do (name = ${@URLUtilsService.encodeURLSegments(Supplier.Name)})}" method="POST">
+	<form th:action="@{/network/suppliers/{supplierId}/delete.do (supplierId = ${Supplier.UUID})}" method="POST">
+		<input type="hidden" name="supplierId" th:value="${Supplier.UUID}" />
 		<button type="button" class="btn btn-white" data-dismiss="modal">Nein</button>
 		<button type="submit" class="btn btn-danger">Ja, den Lieferantent löschen!</button>
 	</form>

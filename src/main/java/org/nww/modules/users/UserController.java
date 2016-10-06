@@ -100,9 +100,9 @@ public class UserController extends AbstractApplicationController {
 		return "users/userList :: pagingArea";
 	}
 	
-	@RequestMapping(value = "/{name}/", method = RequestMethod.GET)
-	public String showProfile(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
-		User u = getUserManager().findByUsername(username);
+	@RequestMapping(value = "/{userId}/", method = RequestMethod.GET)
+	public String showProfile(@PathVariable String userId, RedirectAttributes redirectAttributes, Model model) {
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -119,9 +119,12 @@ public class UserController extends AbstractApplicationController {
 		return "users/profile"; 
 	}
 	
-	@RequestMapping(value = "/{name}/editProfile", method = RequestMethod.GET)
-	public String editProfile(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
-		User u = getUserManager().findByUsername(username);
+	@RequestMapping(value = "/{userId}/editProfile", method = RequestMethod.GET)
+	public String editProfile(
+			@PathVariable String userId, 
+			RedirectAttributes redirectAttributes, 
+			Model model) {
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -150,14 +153,20 @@ public class UserController extends AbstractApplicationController {
 			form.setEmail(u.getUsername());			
 		}
 		
+		model.addAttribute("User", u);
 		model.addAttribute("ProfileForm", form);
 		
 		return "users/editProfile";
 	}
 	
-	@RequestMapping(value = "/{name}/editProfile.do", method = RequestMethod.POST)
-	public String editProfileDo(@Valid @ModelAttribute("ProfileForm") ProfileForm form, BindingResult bindingResult, @PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
-		User u = getUserManager().findByUsername(username);
+	@RequestMapping(value = "/{userId}/editProfile.do", method = RequestMethod.POST)
+	public String editProfileDo(
+			@PathVariable String userId, 
+			@Valid @ModelAttribute("ProfileForm") ProfileForm form, 
+			BindingResult bindingResult, 
+			RedirectAttributes redirectAttributes, 
+			Model model) {
+		User u = getUserManager().findOne(userId);
 
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -187,7 +196,7 @@ public class UserController extends AbstractApplicationController {
 			else {
 				redirectAttributes.addAttribute("e", "PUE");
 			}
-			return REDIRECT_TO_USERLIST + u.getUsername() + "/";
+			return createRedirectToProfile(u);
 		}
 
 		model.addAttribute("User", u);
@@ -195,10 +204,10 @@ public class UserController extends AbstractApplicationController {
 		return "users/editProfile";
 	}
 	
-	@RequestMapping(value = "/{name}/editSkills", method = RequestMethod.GET)
-	public String editSkills(@PathVariable("name") String username, RedirectAttributes redirectAttributes, 
+	@RequestMapping(value = "/{userId}/editSkills", method = RequestMethod.GET)
+	public String editSkills(@PathVariable String userId, RedirectAttributes redirectAttributes, 
 			Model model) {
-		User u = getUserManager().findByUsername(username);
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -220,17 +229,18 @@ public class UserController extends AbstractApplicationController {
 		return "users/editSkills";
 	}
 	
-	@RequestMapping(value = "/{name}/newSkillTemplate", method = RequestMethod.GET)
+	@RequestMapping(value = "/newSkillTemplate", method = RequestMethod.GET)
 	public String newSkillTemplate() {
 		return "users/inc/skills :: formPart";
 	}
 	
-	@RequestMapping(value = "/{name}/editSkills.do", method = RequestMethod.POST)
-	public String editSkillsDo(@Valid @ModelAttribute("SkillsForm") SkillsForm form,
-			@PathVariable("name") String username, 
+	@RequestMapping(value = "/{userId}/editSkills.do", method = RequestMethod.POST)
+	public String editSkillsDo(
+			@PathVariable String userId, 
+			@Valid @ModelAttribute("SkillsForm") SkillsForm form,
 			RedirectAttributes redirectAttributes, Model model) {
 		
-		User u = getUserManager().findByUsername(username);
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -256,12 +266,14 @@ public class UserController extends AbstractApplicationController {
 		else {
 			redirectAttributes.addAttribute("e", "SUE");
 		}
-		return REDIRECT_TO_USERLIST + u.getUsername() + "/";
+		return createRedirectToProfile(u);
 	}
 	
-	@RequestMapping(value = "/{name}/editProfileImage", method = RequestMethod.GET)
-	public String editProfileImage(@PathVariable("name") String username, Model model) {
-		User u = getUserManager().findByUsername(username);
+	@RequestMapping(value = "/{userId}/editProfileImage", method = RequestMethod.GET)
+	public String editProfileImage(
+			@PathVariable String userId, 
+			Model model) {
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			return "common/empty"; // should not happend - bad request status accepted for a while
@@ -279,12 +291,13 @@ public class UserController extends AbstractApplicationController {
 		return "users/modals/profileImageSelector";
 	}
 	
-	@RequestMapping(value = "/{name}/editProfileImage.do", method = RequestMethod.POST)
-	public ResponseEntity<String> editProfileImageDo(@PathVariable("name") String username, 
+	@RequestMapping(value = "/{userId}/editProfileImage.do", method = RequestMethod.POST)
+	public ResponseEntity<String> editProfileImageDo(
+			@PathVariable String userId, 
 			@RequestParam(name = "file", required = true) MultipartFile file,
 			Model model) {
 		
-		User u = getUserManager().findByUsername(username);
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			// user does not have a profile currently
@@ -333,10 +346,12 @@ public class UserController extends AbstractApplicationController {
 		return ResponseEntity.badRequest().body("");
 	}
 	
-	@RequestMapping(value = "/{name}/removeProfileImage.do", method = RequestMethod.POST)
-	public String removeProfileImageDo(@PathVariable("name") String username, RedirectAttributes redirectAttributes, 
+	@RequestMapping(value = "/{userId}/removeProfileImage.do", method = RequestMethod.POST)
+	public String removeProfileImageDo(
+			@PathVariable String userId, 
+			RedirectAttributes redirectAttributes, 
 			Model model) {
-		User u = getUserManager().findByUsername(username);
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -363,9 +378,9 @@ public class UserController extends AbstractApplicationController {
 			}
 		}
 		
-		return REDIRECT_TO_USERLIST + u.getUsername()  + "/";
+		return createRedirectToProfile(u);
 	}
-	
+
 	@RequestMapping(value = "/createCredentials", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public String createCredentials(Model model) {
@@ -379,7 +394,8 @@ public class UserController extends AbstractApplicationController {
 	
 	@RequestMapping(value = "/createCredentials.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public String createCredentialsDo(@Valid @ModelAttribute("CredentialsForm") CredentialsForm form,
+	public String createCredentialsDo(
+			@Valid @ModelAttribute("CredentialsForm") CredentialsForm form,
 			BindingResult bindingResult,
 			RedirectAttributes redirectAttributes,
 			Model model) {
@@ -415,9 +431,12 @@ public class UserController extends AbstractApplicationController {
 		return CREDENTIALS_FORM;
 	}
 
-	@RequestMapping(value = "/{name}/editCredentials", method = RequestMethod.GET)
-	public String editCredentials(@PathVariable("name") String username, RedirectAttributes redirectAttributes, Model model) {
-		User u = getUserManager().findByUsername(username);
+	@RequestMapping(value = "/{userId}/editCredentials", method = RequestMethod.GET)
+	public String editCredentials(
+			@PathVariable String userId, 
+			RedirectAttributes redirectAttributes, 
+			Model model) {
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -439,12 +458,14 @@ public class UserController extends AbstractApplicationController {
 		return CREDENTIALS_FORM;
 	}
 
-	@RequestMapping(value = "/{name}/editCredentials.do", method = RequestMethod.POST)
-	public String editCredentialsDo(@Valid @ModelAttribute("CredentialsForm") CredentialsForm form, 
-			BindingResult bindingResult, @PathVariable("name") String username, 
+	@RequestMapping(value = "/{userId}/editCredentials.do", method = RequestMethod.POST)
+	public String editCredentialsDo(
+			@PathVariable String userId, 
+			@Valid @ModelAttribute("CredentialsForm") CredentialsForm form, 
+			BindingResult bindingResult, 
 			RedirectAttributes redirectAttributes, 
 			HttpServletRequest request, HttpServletResponse response, Model model) {
-		User u = getUserManager().findByUsername(username);
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -497,7 +518,7 @@ public class UserController extends AbstractApplicationController {
 					return "redirect:/login";
 				}
 				
-				return REDIRECT_TO_USERLIST + u.getUsername() + "/";
+				return createRedirectToProfile(u);
 			}
 		}
 
@@ -506,10 +527,12 @@ public class UserController extends AbstractApplicationController {
 		return CREDENTIALS_FORM;
 	}
 	
-	@RequestMapping(value = "/{name}/remove", method = RequestMethod.GET)
+	@RequestMapping(value = "/{userId}/remove", method = RequestMethod.GET)
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public String removeUser(@PathVariable("name") String username, Model model) {
-		User u = getUserManager().findByUsername(username);
+	public String removeUser(
+			@PathVariable String userId, 
+			Model model) {
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			return "";
@@ -520,12 +543,13 @@ public class UserController extends AbstractApplicationController {
 		return "users/modals/userRemoveConfirmation";
 	}
 	
-	@RequestMapping(value = "/{name}/remove.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/{userId}/remove.do", method = RequestMethod.POST)
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public String removeUserDo(@PathVariable("name") String username, 
+	public String removeUserDo(
+			@PathVariable String userId, 
 			RedirectAttributes redirectAttributes,
 			Model model) {
-		User u = getUserManager().findByUsername(username);
+		User u = getUserManager().findOne(userId);
 		
 		if(null == u) {
 			redirectAttributes.addAttribute("e", "UNF");
@@ -551,5 +575,9 @@ public class UserController extends AbstractApplicationController {
 	private boolean isLoginAfterUpdateNeeded(User u, CredentialsForm f) {
 		// users only need to logout if they change their own username
 		return !u.getUsername().equals(f.getEmail()) && populateCurrentUser().getUUID().equals(u.getUUID());
+	}
+	
+	private String createRedirectToProfile(User u) {
+		return REDIRECT_TO_USERLIST + u.getUUID()  + "/";
 	}
 }

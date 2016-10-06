@@ -39,11 +39,11 @@
 			<span class="sr-only">43% Complete (success)</span>
 		</div>
 	</div>
-	<form th:action="@{/network/users/{name}/removeProfileImage.do (name = ${User.Username})}" method="POST"
+	<form th:action="@{/network/users/{userid}/removeProfileImage.do (userid = ${User.UUID})}" method="POST"
 			th:if="${User.hasProfile() AND User.Profile.hasAttribute('ProfileImageUUID')}">
 		<button type="submit" class="btn btn-danger pull-left">Bild entfernen</button>
 	</form>
-	<form id="userProfileImageForm" th:action="@{/network/users/{name}/editProfileImage.do (name = ${User.Username})}" method="POST" enctype="multipart/form-data">
+	<form id="userProfileImageForm" th:action="@{/network/users/{userid}/editProfileImage.do (userid = ${User.UUID})}" method="POST" enctype="multipart/form-data">
 		<button type="button" class="btn btn-white" data-dismiss="modal">Abbrechen</button>
 		<button id="btnSubmitProfileImageForm" type="button" class="btn btn-primary">Speichern</button>
 	</form>
@@ -95,7 +95,7 @@
 		
 		var dataUrl = $('.image-crop > img').cropper('getDataURL');
 		if(dataUrl == '') {
-			toastr.error('Bitte wähle ein Bild aus!', 'Speichern nicht möglich');
+			toastr.error('Bitte wï¿½hle ein Bild aus!', 'Speichern nicht mï¿½glich');
 			return false;
 		}
 		

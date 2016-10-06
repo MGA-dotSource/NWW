@@ -1,6 +1,6 @@
 <th:block th:fragment="withProfileImage (User, Profile)">
 	<div class="contact-box center-version fixed-height">
-		<a th:href="@{/network/users/{name}/(name = ${User.Username})}">
+		<a th:href="@{/network/users/{userid}/(userid = ${User.UUID})}">
 			<th:block th:include="users/inc/profileImages :: md (${User})"></th:block>
 			<h3 class="m-b-xs">
 				<strong th:text="${User.DisplayName}"></strong>
@@ -48,7 +48,7 @@
 </th:block>
 <th:block th:fragment="shortInfo (User, Profile)">
 	<div class="contact-box center-version fixed-height">
-		<a th:href="@{/network/users/{name}/(name = ${User.Username})}">
+		<a th:href="@{/network/users/{userid}/(userid = ${User.UUID})}">
 			<th:block th:include="users/inc/profileImages :: md (${User})"></th:block>
 			<h3 class="m-b-xs">
 				<strong th:text="${User.DisplayName}"></strong>
@@ -93,11 +93,11 @@
 	<div class="contact-box center-version fixed-height">
 		<a data-toggle="modal"
   				data-target="#modal-lg"	
-				th:href="@{/network/users/{name}/remove (name = ${User.Username})}"
+				th:href="@{/network/users/{userid}/remove (userid = ${User.UUID})}"
 				title="Mitglied l&ouml;schen" class="btn btn-danger btn-circle remove-user" th:if="${ShowAdminOptions}">
 			<i class="fa fa-remove fa-fw"></i>
 		</a>
-		<a th:href="@{/network/users/{name}/(name = ${User.Username})}">
+		<a th:href="@{/network/users/{userid}/(userid = ${User.UUID})}">
 			<th:block th:include="users/inc/profileImages :: md (${User})"></th:block>
 			<h3 class="m-b-xs">
 				<strong th:text="${User.DisplayName}"></strong>
@@ -145,7 +145,7 @@
 	<div class="contact-box">
 		<a data-toggle="modal"
   				data-target="#modal-lg"	
-				th:href="@{/network/users/{name}/remove (name = ${User.Username})}"
+				th:href="@{/network/users/{userid}/remove (userid = ${User.UUID})}"
 				title="Mitglied l&ouml;schen" class="btn btn-danger btn-circle remove-user" th:if="${ShowAdminOptions}">
 			<i class="fa fa-close"></i>
 		</a>

@@ -7,6 +7,7 @@ import static org.nww.app.Constants.REDIRECT_PARAM_NAME_ERROR;
 import static org.nww.app.Constants.REDIRECT_PARAM_NAME_MESSAGE;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -97,26 +98,31 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String showListPage(
+	public CompletionStage<String> showListPage(
 			@SortDefault("name") Pageable pageable,
 			@RequestParam(name = "q", required = false) String query, 
+			Principal principal,
 			Model model) {
-		
-		Query q = new Query();
-		Criteria criteria = new Criteria();
-		if(!populateCurrentUser().isAdmin()) {
-			criteria.and("approvalState").is(Supplier.STATUS_APPROVED);
-		}
-		if(StringUtils.isNotEmpty(query)) {
-			criteria.and("name").regex(query, "i");
-		}
-		q.addCriteria(criteria);
-		
-		Page<? extends Supplier> suppliers = supplierMgr.findAllByQuery(q, pageable);
-				
-		model.addAttribute("page", suppliers);
-		
-		return "suppliers/supplierList";
+		return withCurrentUser(principal.getName())
+				.thenApply(currentUser -> {
+					Query q = new Query();
+					Criteria criteria = new Criteria();
+					
+					if(!currentUser.isAdmin()) {
+						criteria.and("approvalState").is(Supplier.STATUS_APPROVED);
+					}
+					if(StringUtils.isNotEmpty(query)) {
+						criteria.and("name").regex(query, "i");
+					}
+					q.addCriteria(criteria);
+					
+					Page<? extends Supplier> suppliers = supplierMgr.findAllByQuery(q, pageable);
+					
+					model.addAttribute("page", suppliers);
+					
+					return "suppliers/supplierList";
+					
+				});
 	}
 	
 	/**
@@ -125,12 +131,14 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/create", method = RequestMethod.GET)
-	public String create(Model model) {
-		SupplierForm form = new SupplierForm();
-		
-		model.addAttribute("SupplierForm", form);
-		
-		return "suppliers/editSupplier";
+	public CompletionStage<String> create(Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			SupplierForm form = new SupplierForm();
+			
+			model.addAttribute("SupplierForm", form);
+			
+			return "suppliers/editSupplier";			
+		});
 	}
 	
 	/**
@@ -142,47 +150,48 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/create.do", method = RequestMethod.POST)
-	public String createDo(
+	public CompletionStage<String> createDo(
 			@RequestParam(name = "file", required = true) MultipartFile file,
 			@Valid @ModelAttribute("SupplierForm") SupplierForm form, 
 			BindingResult bindingResult, 
 			RedirectAttributes redirectAttributes,
 			Model model) {
-		
-		// check company name to be unique
-		if(supplierMgr.findByName(form.getName()) != null) {
-			bindingResult.addError(new FieldError("SupplierForm", 
-					"name", 
-					form.getName(), false, new String[0], new Object[0],
-					"Ein Lieferant mit diesem Namen ist bereits registriert."));
-			model.addAttribute("BindingResult", bindingResult);
-		}
-		
-		if(!bindingResult.hasErrors()) {
-			// handle file upload
-			FileInformation logoImage = null;
-			if(null != file) {
-				// first parameter is file name that should be set automatically
-				try {
-					logoImage = fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getShared(), file.getBytes(), file.getContentType());
-				} catch (IOException e) {
-					logger.error("Could not upload file " + e.getMessage());
+		return CompletableFuture.supplyAsync(() -> {
+			// check company name to be unique
+			if(supplierMgr.findByName(form.getName()) != null) {
+				bindingResult.addError(new FieldError("SupplierForm", 
+						"name", 
+						form.getName(), false, new String[0], new Object[0],
+						"Ein Lieferant mit diesem Namen ist bereits registriert."));
+				model.addAttribute("BindingResult", bindingResult);
+			}
+			
+			if(!bindingResult.hasErrors()) {
+				// handle file upload
+				FileInformation logoImage = null;
+				if(null != file) {
+					// first parameter is file name that should be set automatically
+					try {
+						logoImage = fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getShared(), file.getBytes(), file.getContentType());
+					} catch (IOException e) {
+						logger.error("Could not upload file " + e.getMessage());
+					}
+				}
+				
+				Supplier s = mapper.mapToPersistentObject(form);
+				
+				if(null != logoImage) {
+					s.setLogoFileInformation(logoImage);
+				}
+				
+				if(supplierMgr.save(s).getResultState() == State.SUCCESSFULL) {
+					redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SSC");
+					return REDIRECT_TO_SUPPLIERS;
 				}
 			}
 			
-			Supplier s = mapper.mapToPersistentObject(form);
-			
-			if(null != logoImage) {
-				s.setLogoFileInformation(logoImage);
-			}
-			
-			if(supplierMgr.save(s).getResultState() == State.SUCCESSFULL) {
-				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SSC");
-				return REDIRECT_TO_SUPPLIERS;
-			}
-		}
-		
-		return "suppliers/editSupplier";
+			return "suppliers/editSupplier";			
+		});
 	}
 	
 	/**
@@ -192,23 +201,28 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{name}/", method = RequestMethod.GET)
-	public String showDetails(@PathVariable("name") String name, RedirectAttributes redirectAttributes, Model model) {
-		Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
-		
-		if(null == s) {
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
-			return REDIRECT_TO_SUPPLIERS;
-		}
-		
-		// find users related to this supplier
-		List<? extends Profile> profiles = profileMgr.findAllByQuery(new FindProfilesBySupplierQuery(s));
-		List<? extends User> users = getUserManager().findByProfileID(profiles.stream().map(p -> p.getUUID()).collect(Collectors.toList()));
-		
-		model.addAttribute("Supplier", s);
-		model.addAttribute("Users", users);
-		
-		return "suppliers/details";
+	@RequestMapping(value = "/{supplierId}/", method = RequestMethod.GET)
+	public CompletionStage<String> showDetails(
+			@PathVariable String supplierId, 
+			RedirectAttributes redirectAttributes, Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Supplier s = supplierMgr.findOne(supplierId);
+			
+			if(null == s) {
+				logger.error("Could not find supplier with Id \"" + supplierId + "\" for delete confirmation layer.");
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
+				return REDIRECT_TO_SUPPLIERS;
+			}
+			
+			// find users related to this supplier
+			List<? extends Profile> profiles = profileMgr.findAllByQuery(new FindProfilesBySupplierQuery(s));
+			List<? extends User> users = getUserManager().findByProfileID(profiles.stream().map(p -> p.getUUID()).collect(Collectors.toList()));
+			
+			model.addAttribute("Supplier", s);
+			model.addAttribute("Users", users);
+			
+			return "suppliers/details";
+		});
 	}
 	
 	/**
@@ -218,12 +232,16 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{name}/edit", method = RequestMethod.GET)
-	public CompletionStage<String> edit(@PathVariable("name") String name, RedirectAttributes redirectAttributes, Model model) {
+	@RequestMapping(value = "/{supplierId}/edit", method = RequestMethod.GET)
+	public CompletionStage<String> edit(
+			@PathVariable String supplierId, 
+			RedirectAttributes redirectAttributes, 
+			Model model) {
 		return CompletableFuture.supplyAsync(() -> {
-			Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
+			Supplier s = supplierMgr.findOne(supplierId);
 			
 			if(null == s) {
+				logger.error("Could not find supplier with Id \"" + supplierId + "\" for delete confirmation layer.");
 				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
 				return REDIRECT_TO_SUPPLIERS;
 			}
@@ -245,7 +263,7 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{name}/edit.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/{supplierId}/edit.do", method = RequestMethod.POST)
 	public CompletionStage<String> editDo(
 			@RequestParam(name = "file", required = true) MultipartFile file,
 			@RequestParam(name = "removeImage", required = false) boolean removeImage,
@@ -257,6 +275,7 @@ public class SupplierController extends AbstractApplicationController {
 			
 			Supplier s = supplierMgr.findOne(form.getUUID());
 			if(null == s) {
+				logger.error("Could not find supplier with Id \"" + form.getUUID() + "\" for delete confirmation layer.");
 				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
 				return REDIRECT_TO_SUPPLIERS;
 			}
@@ -309,18 +328,22 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{name}/delete", method = RequestMethod.GET)
-	public String delete(@PathVariable("name") String name, Model model) {
-		Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
-		
-		if(null == s) {
-			logger.error("Could not find supplier with name \"" + name + "\" for delete confirmation layer.");
-			return "common/empty";
-		}
-		
-		model.addAttribute("Supplier", s);
-		
-		return "suppliers/modals/deleteConfirmation";
+	@RequestMapping(value = "/{supplierId}/delete", method = RequestMethod.GET)
+	public CompletionStage<String> delete(
+			@PathVariable String supplierId, 
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Supplier s = supplierMgr.findOne(supplierId);
+			
+			if(null == s) {
+				logger.error("Could not find supplier with Id \"" + supplierId + "\" for delete confirmation layer.");
+				return "common/empty";
+			}
+			
+			model.addAttribute("Supplier", s);
+			
+			return "suppliers/modals/deleteConfirmation";
+		});
 	}
 	
 	/**
@@ -330,22 +353,27 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/{name}/delete.do", method = RequestMethod.POST)
-	public String deleteDo(@PathVariable("name") String name, RedirectAttributes redirectAttributes, Model model) {
-		Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
-		
-		if(null == s) {
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
-		}
-		else {
-			if(s.hasLogo()) {
-				fileMgr.deleteFile(s.getLogoFileInformation());
+	@RequestMapping(value = "/{supplierId}/delete.do", method = RequestMethod.POST)
+	public CompletionStage<String> deleteDo(
+			@RequestParam String supplierId, 
+			RedirectAttributes redirectAttributes, 
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Supplier s = supplierMgr.findOne(supplierId);
+			
+			if(null == s) {
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "SNF");
 			}
-			supplierMgr.delete(s);
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SDS");
-		}
-		
-		return REDIRECT_TO_SUPPLIERS;
+			else {
+				if(s.hasLogo()) {
+					fileMgr.deleteFile(s.getLogoFileInformation());
+				}
+				supplierMgr.delete(s);
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SDS");
+			}
+			
+			return REDIRECT_TO_SUPPLIERS;
+		});
 	}
 	
 	/**
@@ -357,47 +385,51 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/byuser/{uname}/shortlist/", method = RequestMethod.GET)
-	public String showUsersSupplierShortlist(
-			@PathVariable("uname") String uName, 
+	@RequestMapping(value = "/byuser/{userId}/shortlist/", method = RequestMethod.GET)
+	public CompletionStage<String> showUsersSupplierShortlist(
+			@PathVariable String userId, 
 			@RequestParam(name = "p", required = false, defaultValue = "1") Integer page, 
 			@RequestParam(name = "ps", required = false, defaultValue = "10") Integer pageSize,
+			Principal principal,
 			Model model) {
-		
-		User u = getUserManager().findByUsername(uName);
-		if(null == u) {
-			log.error("Could not find user \"" + uName + "\" to lookup supplier shortlist for!");
-			return "common/empty";
-		}
-		
-		if(null != u.getProfile()) {
-			// find users suppliers (from extended object)
-			List<Supplier> suppliers = supplierMgr.getSuppliersFromExtensibleObject(u.getProfile());
+		return CompletableFuture.supplyAsync(() -> {
+			User u = getUserManager().findOne(userId);
+			User currentUser = getUserManager().findByUsername(principal.getName());
 			
-			Page<? extends Supplier> supplierPage = null;
+			if(null == u) {
+				log.error("Could not find user \"" + userId + "\" to lookup supplier shortlist for!");
+				return "common/empty";
+			}
 			
-			// filter by approval state if user is not the current user or current user is not admin
-			if(populateCurrentUser().getUUID().equals(u.getUUID()) || populateCurrentUser().isAdmin()) {
-				supplierPage = new PageImpl<>(suppliers, new PageRequest(page, pageSize), suppliers.size());
+			if(null != u.getProfile()) {
+				// find users suppliers (from extended object)
+				List<Supplier> suppliers = supplierMgr.getSuppliersFromExtensibleObject(u.getProfile());
+				
+				Page<? extends Supplier> supplierPage = null;
+				
+				// filter by approval state if user is not the current user or current user is not admin
+				if(currentUser.getUUID().equals(u.getUUID()) || populateCurrentUser().isAdmin()) {
+					supplierPage = new PageImpl<>(suppliers, new PageRequest(page, pageSize), suppliers.size());
+				}
+				else {
+					// viewing a foreign profile -> see only approved suppliers
+					supplierPage = supplierMgr.createFilteredList(suppliers, 
+							Supplier.STATUS_APPROVED, page, pageSize);
+					// add remark, whether there are more suppliers not beeing approved
+					model.addAttribute("HasNotApprovedSuppliers", supplierPage.getTotalElements() < suppliers.size());
+				}
+				
+				model.addAttribute("Suppliers", supplierPage);
+				
 			}
 			else {
-				// viewing a foreign profile -> see only approved suppliers
-				supplierPage = supplierMgr.createFilteredList(suppliers, 
-						Supplier.STATUS_APPROVED, page, pageSize);
-				// add remark, whether there are more suppliers not beeing approved
-				model.addAttribute("HasNotApprovedSuppliers", supplierPage.getTotalElements() < suppliers.size());
+				model.addAttribute("Suppliers", new PageImpl<>(Collections.emptyList()));
 			}
 			
-			model.addAttribute("Suppliers", supplierPage);
+			model.addAttribute("User", u);
 			
-		}
-		else {
-			model.addAttribute("Suppliers", new PageImpl<>(Collections.emptyList()));
-		}
-		
-		model.addAttribute("User", u);
-		
-		return "suppliers/inc/usersSuppliersShortList";
+			return "suppliers/inc/usersSuppliersShortList";
+		});
 	}
 	
 	/**
@@ -407,32 +439,38 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/byuser/{uname}/edit", method = RequestMethod.GET)
-	public String editUsersSuppliers(@PathVariable("uname") String uName, RedirectAttributes redirectAttributes, Model model) {
-		User u = getUserManager().findByUsername(uName);
-		
-		if(null == u) {
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
-			return REDIRECT_TO_NETWORK;
-		}
-		
-		User currentUser = populateCurrentUser();
-		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
-			// user is not allowed to edit the requested profile
-			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
-			return REDIRECT_TO_NETWORK;
-		}
-		
-		// mapper & manager are aware of profile beeing null!!
-		UserSuppliersForm form = userSuppliersMapper.mapToForm(u.getProfile());
-		
-		List<Supplier> suppliers = supplierMgr.getSuppliersFromExtensibleObject(u.getProfile());
-		
-		model.addAttribute("User", u);
-		model.addAttribute("Suppliers", suppliers);
-		model.addAttribute("UserSuppliersForm", form);
-				
-		return "suppliers/editUsersSuppliers";
+	@RequestMapping(value = "/byuser/{userId}/edit", method = RequestMethod.GET)
+	public CompletionStage<String> editUsersSuppliers(
+			@PathVariable String userId, 
+			RedirectAttributes redirectAttributes,
+			Principal principal,
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			User u = getUserManager().findOne(userId);
+			
+			if(null == u) {
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
+				return REDIRECT_TO_NETWORK;
+			}
+			
+			User currentUser = getUserManager().findByUsername(principal.getName());
+			if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+				// user is not allowed to edit the requested profile
+				log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+				return REDIRECT_TO_NETWORK;
+			}
+			
+			// mapper & manager are aware of profile beeing null!!
+			UserSuppliersForm form = userSuppliersMapper.mapToForm(u.getProfile());
+			
+			List<Supplier> suppliers = supplierMgr.getSuppliersFromExtensibleObject(u.getProfile());
+			
+			model.addAttribute("User", u);
+			model.addAttribute("Suppliers", suppliers);
+			model.addAttribute("UserSuppliersForm", form);
+			
+			return "suppliers/editUsersSuppliers";
+		});
 	}
 	
 	/**
@@ -444,56 +482,61 @@ public class SupplierController extends AbstractApplicationController {
 	 * @param model
 	 * @return
 	 */
-	@RequestMapping(value = "/byuser/{uname}/edit.do", method = RequestMethod.POST)
-	public String editUserSuppliersDo(@PathVariable("uname") String uName, 
-			@Valid @ModelAttribute("UserSupplierForm") UserSuppliersForm form, BindingResult bindingResult, 
-			RedirectAttributes redirectAttributes, Model model) {
-		
-		User u = getUserManager().findByUsername(uName);
-		
-		if(null == u) {
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
-			return REDIRECT_TO_NETWORK;
-		}
-		
-		User currentUser = populateCurrentUser();
-		if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
-			// user is not allowed to edit the requested profile
-			log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
-			return REDIRECT_TO_NETWORK;
-		}
-		
-		if(!bindingResult.hasErrors()) {
-			List<Supplier> suppliers = form.getSupplierNames().stream().map(name -> {
-				Supplier s = supplierMgr.findByName(name);
-				if(null == s) {
-					// create new supplier with name and approval status == not approved
-					return supplierMgr.createNew(name, null, null, null, null);
-				}
-				else {
-					return s;
-				}
-			}).collect(Collectors.toList());
+	@RequestMapping(value = "/byuser/{userId}/edit.do", method = RequestMethod.POST)
+	public CompletionStage<String> editUserSuppliersDo(
+			@PathVariable final String userId, 
+			@Valid @ModelAttribute("UserSupplierForm") final UserSuppliersForm form, 
+			final BindingResult bindingResult, 
+			final RedirectAttributes redirectAttributes, 
+			final Principal principal,
+			final Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			User u = getUserManager().findOne(userId);
 			
-			if(null == u.getProfile()) {
-				getUserManager().createNewUserProfileWithCheck(u);
+			if(null == u) {
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_ERROR, "UNF");
+				return REDIRECT_TO_NETWORK;
 			}
 			
-			Profile p = supplierMgr.setSuppliersForExtensibleObject(u.getProfile(), suppliers);
+			User currentUser = getUserManager().findByUsername(principal.getName());
+			if(!currentUser.getUUID().equals(u.getUUID()) && !currentUser.isAdmin()) {
+				// user is not allowed to edit the requested profile
+				log.error("Access denied! " + currentUser.getDisplayName() + " tried illegal access to " + u.getDisplayName() + "!");
+				return REDIRECT_TO_NETWORK;
+			}
 			
-			profileMgr.save(p);
-			redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SUUS"); // successfully updated user suppliers
-			return "redirect:/network/users/" + u.getUsername() + "/";
-		}
-
-		// error case -> return to edit page
-		List<Supplier> suppliers = supplierMgr.getSuppliersFromExtensibleObject(u.getProfile());
-		
-		model.addAttribute("User", u);
-		model.addAttribute("Suppliers", suppliers);
-		model.addAttribute("UserSuppliersForm", form);
-		
-		return "suppliers/editUsersSuppliers";
+			if(!bindingResult.hasErrors()) {
+				List<Supplier> suppliers = form.getSupplierNames().stream().map(name -> {
+					Supplier s = supplierMgr.findByName(name);
+					if(null == s) {
+						// create new supplier with name and approval status == not approved
+						return supplierMgr.createNew(name, null, null, null, null);
+					}
+					else {
+						return s;
+					}
+				}).collect(Collectors.toList());
+				
+				if(null == u.getProfile()) {
+					getUserManager().createNewUserProfileWithCheck(u);
+				}
+				
+				Profile p = supplierMgr.setSuppliersForExtensibleObject(u.getProfile(), suppliers);
+				
+				profileMgr.save(p);
+				redirectAttributes.addAttribute(REDIRECT_PARAM_NAME_MESSAGE, "SUUS"); // successfully updated user suppliers
+				return "redirect:/network/users/" + u.getUUID() + "/";
+			}
+			
+			// error case -> return to edit page
+			List<Supplier> suppliers = supplierMgr.getSuppliersFromExtensibleObject(u.getProfile());
+			
+			model.addAttribute("User", u);
+			model.addAttribute("Suppliers", suppliers);
+			model.addAttribute("UserSuppliersForm", form);
+			
+			return "suppliers/editUsersSuppliers";
+		});
 	}
 	
 	/**
@@ -502,19 +545,22 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return JSON formatted {@link SupplierAutoCompleteWrapper} object
 	 */
 	@RequestMapping(value = "/autocomplete", method = RequestMethod.GET)
-	public @ResponseBody SupplierAutoCompleteWrapper queryForAutoComplete(@RequestParam("q") String q) {
-		SupplierAutoCompleteWrapper result = new SupplierAutoCompleteWrapper();
-		result.setQuery(q);
-		
-		List<ES_Supplier> searchResult = supplierRepo.findByNameLike(q);
-		searchResult.forEach(sr -> {
-			Supplier s = supplierMgr.findOne(sr.getUUID());
-			if(null != s) {
-				result.addSuggestion(s.getName(), s);
-			}
+	public @ResponseBody CompletionStage<SupplierAutoCompleteWrapper> queryForAutoComplete(
+			@RequestParam("q") String q) {
+		return CompletableFuture.supplyAsync(() -> {
+			SupplierAutoCompleteWrapper result = new SupplierAutoCompleteWrapper();
+			result.setQuery(q);
+			
+			List<ES_Supplier> searchResult = supplierRepo.findByNameLike(q);
+			searchResult.forEach(sr -> {
+				Supplier s = supplierMgr.findOne(sr.getUUID());
+				if(null != s) {
+					result.addSuggestion(s.getName(), s);
+				}
+			});
+			
+			return result;
 		});
-		
-		return result;
 	}
 	
 	/**
@@ -524,17 +570,19 @@ public class SupplierController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/boxes/usershort", method = RequestMethod.GET)
-	public String createUserSupplierDisplayFragment(
+	public CompletionStage<String> createUserSupplierDisplayFragment(
 			@RequestParam(name = "n", required = true) String name, 
 			Model model) {
-		Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
-		
-		if(null != s) {
-			model.addAttribute("Supplier", s);
-		}
-		
-		model.addAttribute("Name", name);
-		
-		return "suppliers/inc/supplierBoxes :: userShort";
+		return CompletableFuture.supplyAsync(() -> {
+			Supplier s = supplierMgr.findByName(urlUtilsService.decodeURLSegments(name));
+			
+			if(null != s) {
+				model.addAttribute("Supplier", s);
+			}
+			
+			model.addAttribute("Name", name);
+			
+			return "suppliers/inc/supplierBoxes :: userShort";
+		});
 	}
 }

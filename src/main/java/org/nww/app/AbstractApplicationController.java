@@ -4,6 +4,9 @@
 package org.nww.app;
 
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -108,5 +111,11 @@ public abstract class AbstractApplicationController extends org.springframework.
 	@ModelAttribute(value = "TourEnabled")
 	public boolean populateTourEnabled() {
 		return this.tourEnabled;
+	}
+	
+	protected CompletionStage<User> withCurrentUser(String userName) {
+		return CompletableFuture.supplyAsync(() -> {
+			return getUserManager().findByUsername(userName);
+		});
 	}
 }

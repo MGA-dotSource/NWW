@@ -1,6 +1,6 @@
 <div class="modal-header">
 	<button type="button" class="close" data-dismiss="modal">
-		<span aria-hidden="true">x</span><span class="sr-only">Schlie&szlig;en</span>
+		<span aria-hidden="true">x</span><span class="sr-only">Schließen</span>
 	</button>
 	<i class="fa fa-close modal-icon"></i>
 	<h4 class="modal-title">Mitglied l&ouml;schen</h4>
@@ -8,12 +8,12 @@
 <div class="modal-body">
 	<p>
 		Soll der Benutzer <strong th:text="${User.DisplayName}">Nutzername</strong>
-		und alle mit ihm verkn&uuml;pften Daten unwiderbringlich gel&ouml;scht
+		und alle mit ihm verknüpften Daten unwiderbringlich gel&ouml;scht
 		werden?
 	</p>
 </div>
 <div class="modal-footer">
-	<form th:action="@{/network/users/{name}/remove.do (name = ${User.DisplayName})}" method="POST">
+	<form th:action="@{/network/users/{userid}/remove.do (userid = ${User.UUID})}" method="POST">
 		<button type="button" class="btn btn-white" data-dismiss="modal">Nein</button>
 		<button type="submit" class="btn btn-danger">Ja, den Benutzer l&ouml;schen!</button>
 	</form>

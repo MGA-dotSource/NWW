@@ -43,7 +43,7 @@
 			</div>
 		</div>
 		<div class="wrapper wrapper-content animated fadeIn">
-			<div class="row" th:with="action = ${#strings.isEmpty(SupplierForm.UUID)} ? @{/network/suppliers/create.do} : @{/network/suppliers/{name}/edit.do (name = ${@URLUtilsService.encodeURLSegments(SupplierForm.Name)})}">
+			<div class="row" th:with="action = ${#strings.isEmpty(SupplierForm.UUID)} ? @{/network/suppliers/create.do} : @{/network/suppliers/{supplierId}/edit.do (supplierId = ${SupplierForm.UUID})}">
 				<form method="POST" th:action="${action}" 
 						th:object="${SupplierForm}" data-ref="supplier-form"
 						class="form-horizontal"
@@ -77,7 +77,7 @@
 								<div class="form-group">
 									<th:block th:replace="common/formFragments :: inputFile('file', 'Logo', 'col-sm-2 control-label', 'col-sm-6 col-xs-12', false, 'image/*')"></th:block>
 								</div>
-								<div th:if="${Supplier.hasLogo()}" class="row">
+								<div th:if="${Supplier != null AND Supplier.hasLogo()}" class="row">
 									<div class="col-sm-6 col-xs-12 col-sm-push-2">
 										<img id="supplierLogo" th:alt="${Supplier.Name}"
 												th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(Supplier.LogoFileInformationUUID)} + '_250'__}" />

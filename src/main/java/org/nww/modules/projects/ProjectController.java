@@ -4,6 +4,7 @@
 package org.nww.modules.projects;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -11,6 +12,7 @@ import java.util.concurrent.CompletionStage;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 
+import org.apache.commons.lang.StringUtils;
 import org.nww.app.AbstractApplicationController;
 import org.nww.app.Constants;
 import org.nww.core.system.OperationResult.State;
@@ -29,6 +31,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -83,41 +88,24 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String projectList(Model model) {
-		// workaround for sorting, paging will be implemented later
-		Pageable p = new PageRequest(0, 1000, Direction.DESC, "lastModified");
-		
-		Page<? extends Project> projects = projectMgr.findAll(p);
-		
-		model.addAttribute("Projects", projects.getContent());
-		
-		return "projects/projectList";
-	}
-	
-	/**
-	 * Show all project details in one view.
-	 * @param userName
-	 * @param projectName
-	 * @param redirectAttributes
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/{userName}/{projectName}/", method = RequestMethod.GET)
-	public String showDetails(@PathVariable("userName") String userName, 
-			@PathVariable("projectName") String projectName,
-			RedirectAttributes redirectAttributes,
+	public CompletionStage<String> showListPage(
+			@SortDefault(sort = "lastModified", direction = Direction.DESC) Pageable p,
+			@RequestParam(name = "q", required = false) String query, 
 			Model model) {
-		Project p = projectMgr.findByNameAndOwner(urlUtils.decodeURLSegments(projectName), getUserManager().findByUsername(userName));
-		
-		if(null == p) {
-			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
-			return REDIRECT_TO_PROJECT_LIST;
-		}
-		
-		model.addAttribute("Project", p);
-		
-		// add template, links, etc..
-		return "projects/details";
+		return CompletableFuture.supplyAsync(() -> {
+			Query q = new Query();
+			Criteria criteria = new Criteria();
+			if(StringUtils.isNotEmpty(query)) {
+				criteria.and("name").regex(query, "i");
+			}
+			q.addCriteria(criteria);
+			
+			Page<? extends Project> projects = projectMgr.findAllByQuery(q, p);
+			
+			model.addAttribute("Projects", projects.getContent());
+			
+			return "projects/projectList";
+		});
 	}
 	
 	/**
@@ -126,35 +114,100 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/new", method = RequestMethod.GET)
-	public String create(Model model) {
-		ProjectForm form = new ProjectForm();
-		
-		model.addAttribute("ProjectForm", form);
-		
-		return TEMPLATE_CREATE_PROJECT;
+	public CompletionStage<String> create(Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			ProjectForm form = new ProjectForm();
+			
+			model.addAttribute("ProjectForm", form);
+			
+			return TEMPLATE_CREATE_PROJECT;			
+		});
 	}
-	
-	@RequestMapping(value = "/{userName}/{projectName}/edit", method = RequestMethod.GET)
-	public String edit(
-			@PathVariable("userName") String userName,
-			@PathVariable("projectName") String projectName,
+
+	/**
+	 * Show all project details in one view.
+	 * @param projectId
+	 * @param redirectAttributes
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{projectId}/", method = RequestMethod.GET)
+	public CompletionStage<String> showDetails(
+			@PathVariable("projectId") String projectId,
 			RedirectAttributes redirectAttributes,
 			Model model) {
-		
-		Project p = projectMgr.findByNameAndOwner(urlUtils.decodeURLSegments(projectName), getUserManager().findByUsername(userName));
-		
-		User current = populateCurrentUser();
-		if(null == p || (!current.isAdmin() && !current.equals(p.getOwner()))) {
-			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
-			return REDIRECT_TO_PROJECT_LIST;
-		}
+		return CompletableFuture.supplyAsync(() -> {
+			Project p = projectMgr.findOne(projectId);
+			
+			if(null == p) {
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
+				return REDIRECT_TO_PROJECT_LIST;
+			}
+			
+			model.addAttribute("Project", p);
+			
+			return "projects/details";			
+		});
+	}
+	
+	/**
+	 * Show a project form.
+	 * @param projectId
+	 * @param redirectAttributes
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{projectId}/edit", method = RequestMethod.GET)
+	public CompletionStage<String> edit(
+			@PathVariable String projectId,
+			RedirectAttributes redirectAttributes,
+			Principal principal,
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Project p = projectMgr.findOne(projectId);
+			
+			User current = getUserManager().findByUsername(principal.getName());
+			if(null == p || (!current.isAdmin() && !current.equals(p.getOwner()))) {
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
+				return REDIRECT_TO_PROJECT_LIST;
+			}
+			
+			ProjectForm form = mapper.mapToForm(p);
+			
+			model.addAttribute("ProjectForm", form);
+			model.addAttribute("mode", MODE_EDIT);
+			
+			return TEMPLATE_EDIT_PROJECT;
+		});
+	}
+	
+	/**
+	 * Show the delete confirmation dialog.
+	 * @param userName
+	 * @param projectName
+	 * @param redirectAttributes
+	 * @param model
+	 * @return
+	 */
+	@RequestMapping(value = "/{projectId}/delete", method = RequestMethod.GET)
+	public CompletionStage<String> delete(
+			@PathVariable("projectId") String projectId,
+			RedirectAttributes redirectAttributes,
+			Model model) {
 
-		ProjectForm form = mapper.mapToForm(p);
-		
-		model.addAttribute("ProjectForm", form);
-		model.addAttribute("mode", MODE_EDIT);
-		
-		return TEMPLATE_EDIT_PROJECT;
+		return CompletableFuture.supplyAsync(() -> {
+			
+			Project p = projectMgr.findOne(projectId);
+			
+			if(null == p) {
+				// TODO log this 
+				return "common/empty";
+			}
+			
+			model.addAttribute("Project", p);
+			
+			return "projects/modals/deleteConfirmation";
+		});
 	}
 	
 	/**
@@ -253,23 +306,25 @@ public class ProjectController extends AbstractApplicationController {
 
 	@RequestMapping(value = "/uploadFile.do", method = RequestMethod.POST, produces = "application/json; charset=UTF-8")
 	@ResponseBody
-	public ResponseEntity<? extends FileInformation> uploadFileDo(@RequestParam(name = "type", required = false, defaultValue = FILE_TYPE_IMAGE) String type,
+	public CompletionStage<ResponseEntity<? extends FileInformation>> uploadFileDo(@RequestParam(name = "type", required = false, defaultValue = FILE_TYPE_IMAGE) String type,
 			@RequestParam(name = "file", required = true) MultipartFile file,
 			@ModelAttribute("ProjectForm") ProjectForm form,
 			@RequestParam(required = false, defaultValue = MODE_CREATE) String mode) {
-		
-		// support only image uploads currently
-		if(FILE_TYPE_IMAGE.equals(type)) {
-			try {
-				return new ResponseEntity<FileInformation>(
-						// first parameter is file name that should be set automatically
-						fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getTemp(), file.getBytes(), file.getContentType()), HttpStatus.OK);
-			} catch (IOException e) {
-				// TODO: add logging
+		return CompletableFuture.supplyAsync(() -> {
+			// support only image uploads currently
+			if(FILE_TYPE_IMAGE.equals(type)) {
+				try {
+					return new ResponseEntity<FileInformation>(
+							// first parameter is file name that should be set automatically
+							fileMgr.saveFile(null, file.getOriginalFilename() ,fileMgr.getTemp(), file.getBytes(), file.getContentType()), HttpStatus.OK);
+				} catch (IOException e) {
+					// TODO: add logging
+					
+				}
 			}
-		}
-		
-		return ResponseEntity.badRequest().body(null);
+			
+			return ResponseEntity.badRequest().body(null);			
+		});
 	}
 	
 	/**
@@ -303,24 +358,25 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/new.do", method = RequestMethod.POST)
-	public String createDo(
+	public CompletionStage<String> createDo(
 			@Valid @ModelAttribute("ProjectForm") ProjectForm form, 
 			BindingResult bindingResult, 
 			RedirectAttributes redirectAttributes, Model model) {
-		
-		if(!bindingResult.hasErrors()) {
-			// copy all files that are in temp to shared			
-			form.getImages().stream()
-					.filter(pfd -> fileMgr.isFileInTemp(pfd.getFileInformation()))
-					.forEach(pfd -> fileMgr.moveFile(pfd.getFileInformation(), fileMgr.getShared()));
+		return CompletableFuture.supplyAsync(() -> {
+			if(!bindingResult.hasErrors()) {
+				// copy all files that are in temp to shared			
+				form.getImages().stream()
+				.filter(pfd -> fileMgr.isFileInTemp(pfd.getFileInformation()))
+				.forEach(pfd -> fileMgr.moveFile(pfd.getFileInformation(), fileMgr.getShared()));
+				
+				projectMgr.save(mapper.mapToPersistentObject(form));
+				
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PCS");
+				return REDIRECT_TO_PROJECT_LIST;
+			}
 			
-			projectMgr.save(mapper.mapToPersistentObject(form));
-			
-			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PCS");
-			return REDIRECT_TO_PROJECT_LIST;
-		}
-		
-		return TEMPLATE_CREATE_PROJECT;
+			return TEMPLATE_CREATE_PROJECT;
+		});
 	}
 
 	/**
@@ -332,83 +388,54 @@ public class ProjectController extends AbstractApplicationController {
 	 * @return
 	 */
 	@RequestMapping(value = "/edit.do", method = RequestMethod.POST)
-	public String editDo(
+	public CompletionStage<String> editDo(
 			@Valid @ModelAttribute("ProjectForm") ProjectForm form,
 			BindingResult bindingResult,
 			RedirectAttributes redirectAttributes,
+			Principal principal,
 			Model model) {
-		
-		Project toEdit = projectMgr.findOne(form.getUUID());
-		
-		if(null == toEdit) {
-			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
-			return REDIRECT_TO_PROJECT_LIST;
-		}
-		
-		User current = populateCurrentUser();
-		if(!current.isAdmin() && !current.equals(toEdit.getOwner())) {
-			return REDIRECT_TO_PROJECT_LIST;
-		}
-		
-		if(!bindingResult.hasErrors()) {
-			// remove files that are in the toEdit project but are no more in the form to be saved
-			toEdit.getImages().stream()
-					.filter(fileData -> !form.getImages().contains(fileData))
-					.forEach(fileData -> {
-						FileInformation fi = fileData.getFileInformation();
-						// remove possible resized files
-						fi.getExtensions().stream()
-								.filter(ext -> ext.getName().startsWith("resized_")) // find files via extensions
-								.map(ext -> fileMgr.findOne(ext.getString())) // map from UUID extension string value to FileInformation
-								.filter(file -> null != file) // filter null values
-								.forEach(file -> fileMgr.deleteFile(file)); // delete
-						// remove file itself
-						fileMgr.deleteFile(fi);
-					});
-
-			// copy all files that are left in temp to shared			
-			form.getImages().stream()
-					.filter(pfd -> fileMgr.isFileInTemp(pfd.getFileInformation()))
-					.forEach(pfd -> fileMgr.moveFile(pfd.getFileInformation(), fileMgr.getShared()));
-			
-			
-			projectMgr.save(mapper.mapToExistingPersistentObject(form, toEdit));
-			
-			redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PES");
-			return REDIRECT_TO_PROJECT_LIST;
-		}
-
-		return TEMPLATE_EDIT_PROJECT;
-	}
-	
-	/**
-	 * Show the delete confirmation dialog.
-	 * @param userName
-	 * @param projectName
-	 * @param redirectAttributes
-	 * @param model
-	 * @return
-	 */
-	@RequestMapping(value = "/{userName}/{projectName}/delete", method = RequestMethod.GET)
-	public CompletionStage<String> delete(
-			@PathVariable("userName") String userName,
-			@PathVariable("projectName") String projectName,
-			RedirectAttributes redirectAttributes,
-			Model model) {
-
 		return CompletableFuture.supplyAsync(() -> {
+			Project toEdit = projectMgr.findOne(form.getUUID());
 			
-			User u = getUserManager().findByUsername(userName);
-			Project p = projectMgr.findByNameAndOwner(urlUtils.decodeURLSegments(projectName), u);
-			
-			if(null == p) {
-				// TODO log this 
-				return "common/empty";
+			if(null == toEdit) {
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_ERROR, PROJECT_NOT_FOUND);
+				return REDIRECT_TO_PROJECT_LIST;
 			}
 			
-			model.addAttribute("Project", p);
+			User current = getUserManager().findByUsername(principal.getName());
+			if(!current.isAdmin() && !current.equals(toEdit.getOwner())) {
+				return REDIRECT_TO_PROJECT_LIST;
+			}
 			
-			return "projects/modals/deleteConfirmation";
+			if(!bindingResult.hasErrors()) {
+				// remove files that are in the toEdit project but are no more in the form to be saved
+				toEdit.getImages().stream()
+				.filter(fileData -> !form.getImages().contains(fileData))
+				.forEach(fileData -> {
+					FileInformation fi = fileData.getFileInformation();
+					// remove possible resized files
+					fi.getExtensions().stream()
+					.filter(ext -> ext.getName().startsWith("resized_")) // find files via extensions
+					.map(ext -> fileMgr.findOne(ext.getString())) // map from UUID extension string value to FileInformation
+					.filter(file -> null != file) // filter null values
+					.forEach(file -> fileMgr.deleteFile(file)); // delete
+					// remove file itself
+					fileMgr.deleteFile(fi);
+				});
+				
+				// copy all files that are left in temp to shared			
+				form.getImages().stream()
+				.filter(pfd -> fileMgr.isFileInTemp(pfd.getFileInformation()))
+				.forEach(pfd -> fileMgr.moveFile(pfd.getFileInformation(), fileMgr.getShared()));
+				
+				
+				projectMgr.save(mapper.mapToExistingPersistentObject(form, toEdit));
+				
+				redirectAttributes.addAttribute(Constants.REDIRECT_PARAM_NAME_MESSAGE, "PES");
+				return REDIRECT_TO_PROJECT_LIST;
+			}
+			
+			return TEMPLATE_EDIT_PROJECT;
 		});
 	}
 	
@@ -420,7 +447,7 @@ public class ProjectController extends AbstractApplicationController {
 	 * @param model
 	 * @return redirect to project list
 	 */
-	@RequestMapping(value = "/{userName}/{projectName}/delete.do", method = RequestMethod.POST)
+	@RequestMapping(value = "/{projectId}/delete.do", method = RequestMethod.POST)
 	public CompletionStage<String> deleteDo(
 			@RequestParam(name = "UUID", required = true) String uuid,
 			RedirectAttributes redirectAttributes,

@@ -6,7 +6,7 @@
 	<th:block th:fragment="content">
 		<h2>Neuer Lieferant</h2>
 		<h3 th:text="${Supplier.Name}"></h3>
-		<a th:href="${Host} + '/network/suppliers/' + ${Supplier.Name} + '/edit'">
+		<a th:href="${Host} + '/network/suppliers/' + ${Supplier.UUID} + '/edit'">
 			Bearbeiten
 		</a>
 	</th:block>

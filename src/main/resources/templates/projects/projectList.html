@@ -59,15 +59,15 @@
 									<tbody>
 										<tr th:each="project : ${Projects}">
 											<td class="project-title">
-                                            	<a th:href="@{/network/projects/{user}/{project}/ (user = ${project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(project.Name)})}" th:text="${project.Name}">name</a>
+                                            	<a th:href="@{/network/projects/{projectId}/ (projectId = ${project.UUID})}" th:text="${project.Name}">name</a>
                                             	<br/>
                                             	<small th:text="${#dates.format(project.Start, 'dd.MM.yyyy')}">start</small>
                                         	</td>
 											<td class="project-people">
-												<a th:href="@{/network/users/{name}/ (name = ${project.Owner.Username})}">
+												<a th:href="@{/network/users/{userid}/ (userid = ${project.Owner.UUID})}">
 													<th:block th:include="users/inc/profileImages :: xs (${project.Owner})"></th:block>
 												</a>
-                                        	    <a th:href="@{/network/users/{name}/ (name = ${participant.User.Username})}" 
+                                        	    <a th:href="@{/network/users/{userid}/ (userid = ${participant.User.UUID})}" 
                                         	    		th:each="participant : ${project.Participants}"
                                         	    		th:if="${participant.User != project.Owner}">
                                         	    	<th:block th:include="users/inc/profileImages :: xs (${participant.User})"></th:block>
@@ -75,13 +75,13 @@
                                         	</td>
                                         	<td class="project-actions">
                                             	<a th:if="${CurrentUser.isAdmin() OR CurrentUser.UUID == project.Owner.UUID}"
-                                            			th:href="@{/network/projects/{user}/{project}/edit (user = ${project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(project.Name)})}" 
+                                            			th:href="@{/network/projects/{projectId}/edit (projectId = ${project.UUID})}" 
                                             			class="btn btn-white btn-sm">
                                            			<i class="fa fa-pencil"></i>
                                          			Bearbeiten
                                          		</a>
                                          		<a th:if="${CurrentUser.isAdmin() OR project.Owner == CurrentUser}"
-		                                        		th:href="@{/network/projects/{user}/{project}/delete (user = ${project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(project.Name)})}"
+		                                        		th:href="@{/network/projects/{projectId}/delete (projectId = ${project.UUID})}"
 		                                        		data-toggle="modal" data-target="#modal" 
 		                                        		class="btn btn-danger btn-sm m-l-sm"
 		                                        		title="Projekt löschen">

@@ -142,7 +142,7 @@
 								</div>
 							</div>
 							<div class="hr-line-dashed"></div>
-							<form method="POST" th:action="@{/network/suppliers/byuser/{uname}/edit.do (uname = ${User.Username})}" 
+							<form method="POST" th:action="@{/network/suppliers/byuser/{userid}/edit.do (userid = ${User.UUID})}" 
 									name="UserSuppliersForm"
 									data-ref="suppliers-form"
 									class="form-horizontal"
@@ -150,7 +150,7 @@
 								<input type="hidden" name="supplierNames" th:value="${supplier.Name}" th:each="supplier : ${Suppliers}" />
 								<div class="form-group">
 									<div class="col-sm-4 col-sm-offset-2">
-										<a th:href="@{/network/users/{name}/ (name = ${User.Username})}" class="btn btn-white">Abbrechen</a>
+										<a th:href="@{/network/users/{userid}/ (userid = ${User.UUID})}" class="btn btn-white">Abbrechen</a>
 										<button class="btn btn-primary" type="submit">Speichern</button>
 									</div>
 								</div>

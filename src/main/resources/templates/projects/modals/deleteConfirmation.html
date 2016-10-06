@@ -13,7 +13,7 @@
 	</p>
 </div>
 <div class="modal-footer">
-	<form th:action="@{/network/projects/{user}/{project}/delete.do (user = ${Project.Owner.Username}, project = ${@URLUtilsService.encodeURLSegments(Project.Name)})}" method="POST">
+	<form th:action="@{/network/projects/{projectId}/delete.do (projectId = ${Project.UUID})}" method="POST">
 		<input type="hidden" name="UUID" th:value="${Project.UUID}" />
 		<button type="button" class="btn btn-white" data-dismiss="modal">Nein</button>
 		<button type="submit" class="btn btn-danger">Ja, das Projekt löschen!</button>

@@ -47,7 +47,7 @@
 								th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_96_96'____}" />
                         <i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}" class="fa fa-user user-img placeholder sm m-b-md"></i>
                    		<a th:if="${CurrentUser.UUID == User.UUID OR CurrentUser.isAdmin()}"
-                   				th:href="@{/network/users/{name}/editProfileImage (name = ${User.Username})}" 
+                   				th:href="@{/network/users/{userid}/editProfileImage (userid = ${User.UUID})}" 
                    				class="btn btn-warning btn-sm btn-circle edit" 
                    				title="Profilbild bearbeiten" 
                    				data-toggle="modal"
@@ -78,14 +78,14 @@
 			</div>
 			<div class="row m-b-md">
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<a th:href="@{/network/users/{name}/editProfile(name = ${User.Username})}"
+					<a th:href="@{/network/users/{userid}/editProfile(userid = ${User.UUID})}"
                  			class="btn btn-primary btn-sm" title="Profil bearbeiten"
 							th:if="${CurrentUser.UUID == User.UUID OR CurrentUser.isAdmin()}">
 						<i class="fa fa-edit fa-fw"></i>
 						Profil bearbeiten
                     </a>
 					<a href="#" class="hidden" th:attr="data-loadr=@{/network/preferences/inc/profileButton/{uuid} (uuid = ${User.UUID})}"></a>
-                   	<a th:href="@{/network/users/{name}/editCredentials(name = ${User.Username})}"
+                   	<a th:href="@{/network/users/{userid}/editCredentials(userid = ${User.UUID})}"
                    			class="btn btn-warning btn-sm" title="Zugangsdaten bearbeiten"
                          	th:if="${CurrentUser.UUID == User.UUID OR CurrentUser.isAdmin()}">
                          <i class="fa fa-sign-in fa-fw"></i>
@@ -94,7 +94,7 @@
                    	<a th:if="${CurrentUser.isAdmin() AND CurrentUser.UUID != User.UUID}"
                   			data-toggle="modal"
 			  				data-target="#modal-lg"	
-							th:href="@{/network/users/{name}/remove (name = ${User.Username})}"
+							th:href="@{/network/users/{userid}/remove (userid = ${User.UUID})}"
 							title="Mitglied löschen" class="btn btn-danger btn-sm">
 						<i class="fa fa-close"></i>
 						Mitglied löschen
@@ -108,7 +108,7 @@
 					<div th:replace="users/inc/skills :: fullList(${User})"></div>
 				</div>
 				<div class="col-sm-6 col-md-4 col-lg-3">
-					<div th:attr="data-loadr=@{/network/suppliers/byuser/{uname}/shortlist/ (uname = ${User.Username})}"></div>
+					<div th:attr="data-loadr=@{/network/suppliers/byuser/{userid}/shortlist/ (userid = ${User.UUID})}"></div>
 				</div>
 				<div class="col-sm-6 col-md-4 col-lg-6">
 					 <div class="ibox float-e-margins">

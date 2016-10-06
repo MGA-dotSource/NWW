@@ -1,7 +1,7 @@
 <div class="ibox float-e-margins">
 	<div class="ibox-title">
 		<h5>Lieferanten</h5>
-		<a th:href="@{/network/suppliers/byuser/{uname}/edit (uname = ${User.Username})}"
+		<a th:href="@{/network/suppliers/byuser/{userid}/edit (userid = ${User.UUID})}"
 				class="btn btn-warning btn-xs m-l-sm m-t-n-xs"
 				th:if="${CurrentUser.UUID == User.UUID OR CurrentUser.isAdmin()}">
 			<i class="fa fa-pencil fa-fw"></i>
@@ -15,7 +15,7 @@
 						<span th:unless="${supplier.isApproved()}" class="label label-danger m-r-xs">
 							<i class="fa fa-question" title="Freigabe steht noch aus"></i>
 						</span>
-						<a th:href="@{/network/suppliers/{name}/ (name = ${@URLUtilsService.encodeURLSegments(supplier.Name)})}">
+						<a th:href="@{/network/suppliers/{supplierId}/ (supplierId = ${supplier.UUID})}">
 							<span th:text="${supplier.Name}">Supplier</span>
 						</a>
 					</td>

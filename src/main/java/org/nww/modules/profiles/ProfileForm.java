@@ -58,7 +58,7 @@ public class ProfileForm extends AbstractPersistentObjectForm {
 	private String street1;
 	@Length(max = 50)
 	private String street2;
-	@Length(max = 5)
+	@Length(max = 10)
 	private String houseNo;
 	@Length(max = 10)
 	private String postalCode;

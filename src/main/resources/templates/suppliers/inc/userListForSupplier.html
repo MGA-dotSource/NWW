@@ -4,12 +4,12 @@
 			<tbody>
 				<tr th:each="user : ${Users}">
 				    <td class="client-avatar text-center">
-				    	<a class="client-link" th:href="@{/network/users/{name}/ (name = ${user.Username})}" 
+				    	<a class="client-link" th:href="@{/network/users/{userid}/ (userid = ${user.UUID})}" 
 				    			th:title="${user.DisplayName}"
 				    			th:include="users/inc/profileImages :: xxs(${user})"></a>
 				    </td>
 			    	<td>
-			    		<a class="client-link" th:href="@{/network/users/{name}/ (name = ${user.Username})}" th:text="${user.DisplayName}"></a>
+			    		<a class="client-link" th:href="@{/network/users/{userid}/ (userid = ${user.UUID})}" th:text="${user.DisplayName}"></a>
 			    	</td>
 				</tr>
 			</tbody>

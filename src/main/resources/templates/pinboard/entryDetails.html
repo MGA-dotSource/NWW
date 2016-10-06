@@ -72,7 +72,7 @@
 									<dl class="dl-horizontal">
 										<dt>Mitglied</dt>
 										<dd>
-											<a th:href="@{/network/users/{name}/ (name = ${Entry.OwningUser.Username})}" th:title="${Entry.OwningUser.DisplayName}">
+											<a th:href="@{/network/users/{userid}/ (userid = ${Entry.OwningUser.UUID})}" th:title="${Entry.OwningUser.DisplayName}">
 												<th:block th:include="users/inc/profileImages :: xs (${Entry.OwningUser})"></th:block>
 											</a>
 										</dd>

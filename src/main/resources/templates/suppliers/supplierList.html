@@ -102,12 +102,12 @@
 														th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(supplier.LogoFileInformationUUID)}__}" />
 	                                        </td>
 	                                        <td class="project-title">
-	                                            <a th:href="@{'/network/suppliers/' + ${@URLUtilsService.encodeURLSegments(supplier.Name)} + '/'}" th:text="${supplier.Name}"></a>
+	                                            <a th:href="@{/network/suppliers/{supplierId}/ (supplierId = ${supplierUUID})}" th:text="${supplier.Name}"></a>
 	                                        </td>
 	                                        <td class="project-description hidden-xs hidden-sm" th:text="${supplier.Description}">
 	                                        </td>
 	                                        <td class="project-actions" th:if="${CurrentUser.isAdmin()}">
-	                                            <a th:href="@{'/network/suppliers/' + ${@URLUtilsService.encodeURLSegments(supplier.Name)} + '/edit'}" class="btn btn-white btn-sm">
+	                                            <a th:href="@{/network/suppliers/{supplierId}/edit (supplierId = ${supplier.UUID})}" class="btn btn-white btn-sm">
 	                                            	<i class="fa fa-pencil"></i>
                                             	</a>
 	                                        </td>

@@ -2,7 +2,7 @@
 	<div class="supplier box">
 		<input type="checkbox" class="i-checks" th:if="${CurrentUser.isAdmin()}" />
 		<div class="clear" th:if="${CurrentUser.isAdmin()}" ></div>
-		<a th:href="@{'/network/suppliers/' + ${@URLUtilsService.encodeURLSegments(s.Name)} + '/'}">
+		<a th:href="@{/network/suppliers/{supplierId}/ (supplierId = s.UUID)}">
 			<div class="img-wrapper">
 				<img src="/img/logo_nya.png" th:if="${s.hasLogo()}"/>
 				<i class="fa fa-4x fa-industry placeholder" title="Noch kein Firmenlogo hinterlegt" th:unless="${s.hasLogo()}"></i>
@@ -13,7 +13,7 @@
 </th:block>
 <th:block th:fragment="simpleNoSelect (s)">
 	<div class="supplier box">
-		<a th:href="@{'/network/suppliers/' + ${@URLUtilsService.encodeURLSegments(s.Name)} + '/'}">
+		<a th:href="@{'/network/suppliers/{supplierId/' (supplierId = ${s.UUID})}">
 			<div class="img-wrapper">
 				<img src="/img/logo_nya.png" th:if="${s.hasLogo()}"/>
 				<i class="fa fa-4x fa-industry placeholder" title="Noch kein Firmenlogo hinterlegt" th:unless="${s.hasLogo()}"></i>
@@ -24,13 +24,13 @@
 </th:block>
 <th:block th:fragment="userShort">
 	<li th:if="${Supplier}" th:attr="data-ref=${Supplier.Name}">
-		<a th:href="@{'/network/suppliers/' + ${@URLUtilsService.encodeURLSegments(Supplier.Name)} + '/'}" th:text="${Supplier.Name}" target="_blank">Supplier Name</a>
+		<a th:href="@{/network/suppliers/{supplierId}/ (supplierId = ${Supplier.UUID})}" th:text="${Supplier.Name}" target="_blank">Supplier Name</a>
 		<button class="btn btn-link" th:attr="data-ref=${Supplier.Name}" title="Beziehung zu diesem Lieferanten entfernen">
 			<i class="fa fa-remove fa-fw"></i>
 		</button>
 	</li>
 	<li th:unless="${Supplier}" th:attr="data-ref=${Name}">
-		<span th:text="${Name}" title="Dieser Lieferant wird neu angelegt und muss erst noch gepr�ft werden!">new Supplier Name</span>
+		<span th:text="${Name}" title="Dieser Lieferant wird neu angelegt und muss erst noch geprüft werden!">new Supplier Name</span>
 		<button class="btn btn-link" th:attr="data-ref=${Name}" title="Beziehung zu diesem Lieferanten entfernen">
 			<i class="fa fa-remove fa-fw"></i>
 		</button>

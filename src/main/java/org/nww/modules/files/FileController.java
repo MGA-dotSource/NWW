@@ -65,7 +65,10 @@ public class FileController extends AbstractController {
 
 	@RequestMapping(value = "/**", method = { RequestMethod.GET })
 	@ResponseBody
-	public CompletionStage<FileSystemResource> handleFileRequest(HttpServletRequest request, Model model) throws MalformedURLException, FileNotFoundException {
+	public CompletionStage<FileSystemResource> handleFileRequest(
+			HttpServletRequest request, 
+			HttpServletResponse response,
+			Model model) throws MalformedURLException, FileNotFoundException {
 		return CompletableFuture.supplyAsync(() -> {
 			String path = request.getRequestURI();
 			String localPath = path.substring(0, path.lastIndexOf("/")).replaceAll("/files/", "");
@@ -79,6 +82,8 @@ public class FileController extends AbstractController {
 				// get possible resized image
 				fi = getOrCreateResizedImage(fri, fi);
 				File f = getFileMgr().getFile(fi);
+				
+				response.setContentType(fi.getContentType());
 				
 				return new FileSystemResource(f);
 			}
