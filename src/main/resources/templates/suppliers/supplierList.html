@@ -97,12 +97,15 @@
 					                           	</span>
 	                                        </td>
 	                                        <td class="project-image">
-	                                        	<img th:alt="${supplier.Name}" class="m-t-xs supplier-list-img"
-														th:if="${supplier.hasLogo()}"
-														th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(supplier.LogoFileInformationUUID)}__}" />
+	                                        	<a th:href="@{/network/suppliers/{supplierId}/ (supplierId = ${supplier.UUID})}">
+		                                        	<img th:alt="${supplier.Name}" class="m-t-xs supplier-list-img"
+															th:if="${supplier.hasLogo()}"
+															th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(supplier.LogoFileInformationUUID)}__}" />
+	                                        	</a>
 	                                        </td>
 	                                        <td class="project-title">
-	                                            <a th:href="@{/network/suppliers/{supplierId}/ (supplierId = ${supplierUUID})}" th:text="${supplier.Name}"></a>
+	                                            <a th:href="@{/network/suppliers/{supplierId}/ (supplierId = ${supplier.UUID})}" 
+	                                            		th:text="${supplier.Name}">Name</a>
 	                                        </td>
 	                                        <td class="project-description hidden-xs hidden-sm" th:text="${supplier.Description}">
 	                                        </td>

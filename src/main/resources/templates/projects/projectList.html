@@ -7,6 +7,7 @@
 	<th:block th:fragment="styles">
 	</th:block>
 	<th:block th:fragment="scripts">
+		<script th:src="@{/js/custom.js}"></script>
 	</th:block>
 </head>
 <body>
@@ -39,27 +40,53 @@
 							</div>
 						</div>
 						<div class="ibox-content">
-							<!--/*
-							<div class="row m-b-sm m-t-sm">
-                                <div class="col-xs-12 col-sm-8 col-md-6 col-lg-4">
-                                   	<form th:action="@{network/projects/}" method="GET"
-                                   			class="form-horizontal">
-	                                    <div class="input-group">
-	                                    	<input type="text" placeholder="Projekt suchen..." name="q" class="input-sm form-control" /> 
-	                                    	<span class="input-group-btn">
-	                                        	<button type="submit" class="btn btn-sm btn-primary">Suchen</button> 
-	                                       	</span>
-										</div>
-                                   	</form>
-								</div>
-							</div>
-							*/-->
 							<div class="project-list">
-								<table class="table table-hover">
+								<div class="row">
+                        			<h3 th:if="${param.q}" class="col-sm-3 pull-left">
+                        				<span th:text="${page.TotalElements}">2</span>
+                        				gefilterte Ergebnis(se) für:
+                        				<a th:href="@{/network/projects/}" 
+                        						class="btn btn-sm btn-info"
+                        						title="Filter entfernen">
+                        					<span th:text="'&quot;' + ${param.q[0]} + '&quot;'"></span>
+                        					<i class="fa fa-close fa-fw"></i>
+                       					</a>
+                        			</h3>
+                        			<div class="col-sm-3 pull-right">
+                        				<form th:action="@{/network/projects/}" method="GET">
+	                        				<div class="input-group">
+	                        					<input type="text" placeholder="In Projekten suchen"
+	                        							th:value="${param.q} ? ${param.q[0]} : ''"
+	                        							name="q" class="input-sm form-control" /> 
+	                        					<span class="input-group-btn">
+	                                        		<button type="submit" class="btn btn-sm btn-primary">
+	                                        			<i class="fa fa-search fa-fw"></i>
+	                                        		</button> 
+	                                        	</span>
+	                                        </div>                        				
+                        				</form>
+                        			</div>
+                        		</div>
+								<table class="table table-hover" data-paging="auto">
+									<thead>
+                                    	<tr>
+                                    		<th>
+                                    			<a title="Sortieren" class="sorted alpha" sd:pagination-sort="name">Name</a>
+                                   			</th>
+                                    		<th class="project-people">
+                                    			Mitwirkende
+                                   			</th>
+                                   			<th class="text-right">
+                                   				<a title="Sortieren" class="sorted" sd:pagination-sort="lastModified">letzte Änderung</a>
+                                   			</th>
+                                    		<th>&nbsp;</th>
+                                    	</tr>
+                                   	</thead>
 									<tbody>
-										<tr th:each="project : ${Projects}">
+										<tr th:each="project : ${page}">
 											<td class="project-title">
-                                            	<a th:href="@{/network/projects/{projectId}/ (projectId = ${project.UUID})}" th:text="${project.Name}">name</a>
+                                            	<a th:href="@{/network/projects/{projectId}/ (projectId = ${project.UUID})}" 
+                                            			th:text="${project.Name}">name</a>
                                             	<br/>
                                             	<small th:text="${#dates.format(project.Start, 'dd.MM.yyyy')}">start</small>
                                         	</td>
@@ -72,6 +99,12 @@
                                         	    		th:if="${participant.User != project.Owner}">
                                         	    	<th:block th:include="users/inc/profileImages :: xs (${participant.User})"></th:block>
                                        	    	</a>
+                                        	</td>
+                                        	<td class="text-right">
+                                        		<a th:href="@{/network/projects/{projectId}/ (projectId = ${project.UUID})}" 
+                                            			th:text="${#dates.format(project.lastModified, 'dd.MM.yyyy')}">
+                                           			last modified
+                                        		</a>
                                         	</td>
                                         	<td class="project-actions">
                                             	<a th:if="${CurrentUser.isAdmin() OR CurrentUser.UUID == project.Owner.UUID}"
@@ -91,6 +124,13 @@
                                     	</tr>
                                     </tbody>
                                 </table>
+                                <div class="text-center">
+	                                <ul class="pagination" sd:pagination="full">
+							            <!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+							            <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+							            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+							        </ul>
+                                </div>
                             </div>
                         </div>
                     </div>

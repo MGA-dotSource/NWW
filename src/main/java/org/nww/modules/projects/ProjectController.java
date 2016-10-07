@@ -102,7 +102,7 @@ public class ProjectController extends AbstractApplicationController {
 			
 			Page<? extends Project> projects = projectMgr.findAllByQuery(q, p);
 			
-			model.addAttribute("Projects", projects.getContent());
+			model.addAttribute("page", projects);
 			
 			return "projects/projectList";
 		});
