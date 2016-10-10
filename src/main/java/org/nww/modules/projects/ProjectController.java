@@ -24,7 +24,6 @@ import org.nww.modules.projects.orm.ProjectManager;
 import org.nww.modules.projects.orm.ProjectParticipantData;
 import org.nww.modules.projects.orm.ProjectSupplierData;
 import org.nww.modules.users.orm.User;
-import org.nww.services.web.URLUtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -73,9 +72,6 @@ public class ProjectController extends AbstractApplicationController {
 	
 	@Resource(name = "ProjectFormDataMapper")
 	private ProjectFormDataMapper mapper;
-	
-	@Resource(name = "URLUtilsService")
-	private URLUtilsService urlUtils;
 	
 	@ModelAttribute("Users")
 	public List<? extends User> populateUsers() {

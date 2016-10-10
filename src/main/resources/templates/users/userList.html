@@ -7,16 +7,6 @@
 	<th:block th:fragment="styles">
 	</th:block>
 	<th:block th:fragment="scripts">
-		<script th:src="@{/js/plugins/jscroll/jquery.jscroll.min.js}"></script>
-		<script type="text/javascript">
-			$(document).ready(function() {
-				$('[data-paging="auto"]').jscroll({
-				    loadingHtml: '<div class="col-xs-12"><div class="sk-spinner sk-spinner-rotating-plane" title="Lade weitere Mitgliederdaten.."></div></div>',
-				    padding: 20,
-				    nextSelector: 'a[data-paging="link"]:last'
-				});
-			});
-		</script>
 	</th:block>
 </head>
 <body>
@@ -36,37 +26,118 @@
 			</div>
 		</div>
 		
-		<div class="wrapper wrapper-content	animated fadeIn">
-			<div class="row" th:if="${CurrentUser.isAdmin()}">
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<div class="ibox float-e-margins">
-                        <div class="ibox-title">
-							<a th:href="@{/network/users/createCredentials}"
-									class="btn btn-primary" title="Neues Mitglied erstellen"
-									th:if="${CurrentUser.isAdmin()}">
-								<i class="fa fa-user-plus fa-fw"></i>
-		                      	Neues Mitglied erstellen
-							</a>
-                        </div>
+		<div class="wrapper wrapper-content">
+			<div class="ibox">
+				<div class="ibox-title">
+					<h5>Mitgliederliste</h5>
+					<div class="ibox-tools">
+						<a th:href="@{/network/users/createCredentials}" class="btn btn-primary btn-xs">
+							<i class="fa fa-plus fa-fw"></i>
+							<span>Neues Mitglied erstellen</span>
+						</a>
+					</div>
+				</div>
+				<div class="ibox-content">
+					<div class="project-list">
+						<div class="row">
+                   			<h3 th:if="${param.q}" class="col-sm-3 pull-left">
+                   				<span th:text="${page.TotalElements}">2</span>
+                   				gefilterte Ergebnis(se) für:
+                   				<a th:href="@{/network/users/}" 
+                   						class="btn btn-sm btn-info"
+                   						title="Filter entfernen">
+                   					<span th:text="'&quot;' + ${param.q[0]} + '&quot;'"></span>
+                   					<i class="fa fa-close fa-fw"></i>
+               					</a>
+                   			</h3>
+                   			<div class="hidden col-sm-3 pull-right">
+                   				<form th:action="@{/network/users/}" method="GET">
+                    				<div class="input-group">
+                    					<input type="text" placeholder="In Benutzern suchen"
+                    							th:value="${param.q} ? ${param.q[0]} : ''"
+                    							name="q" class="input-sm form-control" /> 
+                    					<span class="input-group-btn">
+                                    		<button type="submit" class="btn btn-sm btn-primary">
+                                    			<i class="fa fa-search fa-fw"></i>
+                                    		</button> 
+                                    	</span>
+                                    </div>                        				
+                   				</form>
+                   			</div>
+                   		</div>
+						<table class="table table-hover" data-paging="auto">
+							<thead>
+                               	<tr>
+                               		<th>&nbsp;</th>
+                               		<th>Name</th>
+                               		<th>Firma</th>
+                             		<th class="hidden-xs hidden-sm">Adresse</th>
+                             		<th>Kontakt</th>
+                               		<th class="hidden-md hidden-sm hidden-xs">&nbsp;</th>
+                               	</tr>
+							</thead>
+							<tbody>
+								<tr th:each="user : ${page}">
+									<td>
+										<a th:href="@{/network/users/{userid}/ (userid = ${user.UUID})}">
+											<th:block th:include="users/inc/profileImages :: xs (${user})"></th:block>
+										</a>	
+									</td>
+									<td class="project-title">
+										<a th:href="@{/network/users/{userId}/ (userId= ${user.UUID})}" 
+                                        			th:text="${user.DisplayName}">
+                                     		Benutzername
+                                    	</a>
+                                    </td>
+									<td>
+										<a th:href="@{/network/users/{userid}/ (userid = ${user.UUID})}"
+												th:text="${user.Profile.Company}">
+											Firmenname
+										</a>
+									</td>
+									<td class="hidden-xs hidden-sm">
+										<span th:if="${user.hasProfile()}" th:text="${user.Profile.Street1 + ' ' + user.Profile.HouseNo}"></span>
+										<br />
+										<span th:if="${user.hasProfile()}" th:text="${user.Profile.PostalCode + ' ' + user.Profile.City}"></span>
+									</td>
+									<td>
+										<a class="btn btn-white" th:href="'mailto:' + ${user.Username}">
+											<i class="fa fa-envelope"></i> Email
+										</a>
+										<a th:if="${user.hasProfile() AND user.Profile.Homepage != null}" th:href="${user.Profile.Homepage}" 
+												class="btn btn-white" target="_blank">
+											<i class="fa fa-home"></i> Homepage
+										</a>
+									</td>
+									<td class="project-actions hidden-md hidden-sm hidden-xs">
+										<a th:if="${CurrentUser.isAdmin() OR CurrentUser.UUID == user.UUID}"
+                                          		th:href="@{/network/projects/{userId}/edit (userId = ${user.UUID})}" 
+                                          		class="btn btn-white btn-sm"
+                                          		title="Benutzer bearbeiten">
+                                         	<i class="fa fa-pencil"></i>
+                                       		Bearbeiten
+                                       	</a>
+                                       	<a th:if="${CurrentUser.isAdmin() OR user == CurrentUser}"
+                                        		th:href="@{/network/users/{userId}/delete (userId = ${user.UUID})}"
+                                        		data-toggle="modal" data-target="#modal" 
+                                        		class="btn btn-danger btn-sm m-l-sm"
+                                        		title="Benutzer löschen">
+                                       		<i class="fa fa-close fa-fw"></i>
+                                   		</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+						<div class="text-center">
+							<ul class="pagination" sd:pagination="full">		
+								<!-- Pagination created by SpringDataDialect, this content is just for mockup -->
+					            <li class="disabled"><a href="#" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+					            <li class="active"><a href="#">1 <span class="sr-only">(current)</span></a></li>
+					        </ul>
+						</div>
 					</div>
 				</div>
 			</div>
-        	<div class="row" data-paging="auto">
-        		<th:block th:fragment="pagingArea">
-        			<th:block th:unless="${CurrentUser.isAdmin()}">
-		            	<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" th:each="user : ${Users}">
-		                	<th:block th:include="users/inc/contactBoxes :: withProfileImage(${user}, ${user.Profile})"></th:block>
-		            	</div>
-	            	</th:block>
-					<th:block th:if="${CurrentUser.isAdmin()}">
-		            	<div class="col-xs-12 col-sm-6 col-md-4 col-lg-3" th:each="user : ${Users}">
-		                	<th:block th:include="users/inc/contactBoxes :: withProfileImageAdmin(${user}, ${user.Profile}, true)"></th:block>
-		            	</div>
-	            	</th:block>
-	            	<a th:if="${Users.hasNext()}" th:href="@{/network/users/ (p = ${Users.nextPageable().PageNumber})}" class="hidden" data-paging="link"></a>
-            	</th:block>
-            	<a th:if="${Users.hasNext()}" th:href="@{/network/users/ (p = ${Users.nextPageable().PageNumber})}" class="hidden" data-paging="link"></a>
-        	</div>
         </div>
 	</th:block>
 </body>

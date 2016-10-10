@@ -4,6 +4,8 @@ import static org.nww.app.Constants.REDIRECT_TO_DASHBOARD;
 import static org.nww.app.Constants.SELECTED_MENU_ITEM;
 
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -25,9 +27,12 @@ import org.nww.modules.users.orm.User;
 import org.nww.services.web.HTMLService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -85,19 +90,24 @@ public class UserController extends AbstractApplicationController {
 	private Logger log = LoggerFactory.getLogger(this.getClass());
 	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public String userList(Model model) {
-		model.addAttribute("Users", getUserManager().findAll(new PageRequest(0, 16, new Sort(Direction.ASC, "username"))));
-		
-		model.addAttribute(SELECTED_MENU_ITEM, "userList");
-		
-		return "users/userList";
-	}
-	
-	@RequestMapping(value = "/", method = RequestMethod.GET, params = "p")
-	public String userList(@RequestParam(name = "p", required = true) Integer page, Model model) {
-		model.addAttribute("Users", getUserManager().findAll(new PageRequest(page, 16, new Sort(Direction.ASC, "username"))));
-		
-		return "users/userList :: pagingArea";
+	public CompletionStage<String> showListPage(
+			@SortDefault(sort = "username", direction = Direction.ASC) Pageable p,
+			@RequestParam(name = "q", required = false) String query, 
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			Query q = new Query();
+			Criteria criteria = new Criteria();
+			if(!StringUtils.isEmpty(query)) {
+				criteria.and("username").regex(query, "i");
+			}
+			q.addCriteria(criteria);
+			
+			Page<? extends User> users = getUserManager().findAllByQuery(q, p);
+			
+			model.addAttribute("page", users);
+
+			return "users/userList";
+		});
 	}
 	
 	@RequestMapping(value = "/{userId}/", method = RequestMethod.GET)
