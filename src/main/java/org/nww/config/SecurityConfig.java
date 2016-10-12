@@ -49,11 +49,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 			.antMatchers(HttpMethod.POST, "/register.do").permitAll()
-			.antMatchers("/api/**").permitAll()
 			.antMatchers("/files/upload.do").hasAnyRole(NETWORK_USERS)
 			.antMatchers("/files/**").permitAll()
 			.antMatchers("/error").permitAll()
 			.antMatchers("/network/**").hasAnyRole(NETWORK_USERS)
+			.antMatchers("/api/**").permitAll()
 			.antMatchers("/admin/**").hasAnyRole(ADMIN_USERS)
 			.and()
 				.formLogin().loginPage("/login").defaultSuccessUrl("/network").failureUrl("/login?error=f")
@@ -64,6 +64,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.and()
 				.exceptionHandling().accessDeniedPage("/login?error=ad")
 			.and()
-				.csrf();
+				.csrf().disable();
 	}
 }

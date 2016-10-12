@@ -22,10 +22,10 @@ public class UsersEndpoint {
 	@Autowired
 	private UserManager userManager;
 	
-	@RequestMapping(value = "/{username}", method = RequestMethod.GET)
-	public User findByUsername(@PathVariable String username) {
+	@RequestMapping(value = "/{userId}", method = RequestMethod.GET)
+	public User findByUsername(@PathVariable String userId) {
 		
-		User user = userManager.findByUsername(username);
+		User user = userManager.findOne(userId);
 		return user;
 	}
 }

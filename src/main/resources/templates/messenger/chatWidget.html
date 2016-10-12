@@ -1,0 +1,93 @@
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#chatForm').submit(function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			var action = $(this).attr('action');
+			$.ajax({
+				url: action,
+				method: 'POST',
+				data: $(this).serialize(),
+				success: function(data, status, jqXHR) {
+					renderItem(data);
+					$('#chatForm textarea').val('').focus();
+				},
+				error: function(jqXHR, textStatus, errorThrown) {
+					console.log(textStatus);
+				}
+			});
+		});
+		
+		// load recent messages
+		$.get(chatGetUrl, function(data) {
+			console.log(data);
+		});
+	});
+		
+	function renderItem(itemData) {
+		
+		var messageCount = chatItemList.children().size();
+		var template = '';
+		if(messageCount % 2 > 0) {
+			// odd rows
+			template = chatItemTemplateRight;
+		}
+		else {
+			// even rows
+			template = chatItemTemplateLeft;
+		}
+		
+		template = template.replace('{{content}}', itemData.content);
+		
+		chatItemList.append(template);
+	}
+	
+	var chatItemList = $('.chat-activity-list');
+	var chatGetUrl = chatItemList.attr('data-get');
+	var chatItemTemplateLeft = '<div class="chat-element">'
+		+ '<a href="#" class="pull-left">'
+		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
+		+ '</a>'
+		+ '<div class="media-body ">'
+		+ '<small class="pull-right text-navy">1m ago</small>'
+		+ '<strong>Mike Smith</strong>'
+		+ '<p class="m-b-xs">{{content}}</p>'
+		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
+		+ '</div></div>';
+		
+	var chatItemTemplateRight = '<div class="chat-element right">'
+		+ '<a href="#" class="pull-right">'
+		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
+		+ '</a>'
+		+ '<div class="media-body text-right">'
+		+ '<small class="pull-left text-navy">1m ago</small>'
+		+ '<strong>Mike Smith</strong>'
+		+ '<p class="m-b-xs">{{content}}</p>'
+		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
+		+ '</div></div>';
+</script>
+<div class="ibox float-e-margins">
+	<div class="ibox-title">	
+		<h5>Netzwerk Chat</h5>
+	</div>
+	<div class="ibox-content">
+		<div>
+			<div class="chat-activity-list" th:attr="data-get=@{/api/messenger}">
+			</div>
+		</div>
+		<div class="chat-form">
+			<form th:action="@{/api/messenger}" method="POST" id="chatForm" role="form">
+				<input type="hidden" th:value="${CurrentUser.UUID}" name="userId"/>
+				<div class="form-group">
+					<textarea class="form-control" name="content" placeholder="Nachricht"></textarea>
+				</div>
+				<div class="text-right">
+					<button type="submit" class="btn btn-sm btn-primary m-t-n-xs">
+						<strong>Senden</strong>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
