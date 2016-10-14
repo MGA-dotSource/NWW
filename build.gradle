@@ -1,8 +1,6 @@
-import org.tmatesoft.svn.core.wc.*
-
 buildscript {
     ext {
-        springBootVersion = '1.2.6.RELEASE'
+        springBootVersion = '1.4.1.RELEASE'
     }
     repositories {
         mavenCentral()
