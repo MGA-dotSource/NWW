@@ -111,7 +111,7 @@
 									</td>
 									<td class="project-actions hidden-md hidden-sm hidden-xs">
 										<a th:if="${CurrentUser.isAdmin() OR CurrentUser.UUID == user.UUID}"
-                                          		th:href="@{/network/projects/{userId}/edit (userId = ${user.UUID})}" 
+                                          		th:href="@{/network/users/{userId}/editProfile (userId = ${user.UUID})}" 
                                           		class="btn btn-white btn-sm"
                                           		title="Benutzer bearbeiten">
                                          	<i class="fa fa-pencil"></i>
