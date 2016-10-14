@@ -1,4 +1,27 @@
 <script type="text/javascript">
+	var chatItemList = $('.chat-activity-list');
+	var chatItemTemplateLeft = '<div class="chat-element" data-msgid="{{msgid}}">'
+		+ '<a href="#" class="pull-left">'
+		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
+		+ '</a>'
+		+ '<div class="media-body ">'
+		+ '<small class="pull-right text-navy">1m ago</small>'
+		+ '<strong>{{username}}</strong>'
+		+ '<p class="m-b-xs">{{content}}</p>'
+		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
+		+ '</div></div>';
+		
+	var chatItemTemplateRight = '<div class="chat-element right" data-msgid="{{msgid}}">'
+		+ '<a href="#" class="pull-right">'
+		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
+		+ '</a>'
+		+ '<div class="media-body text-right">'
+		+ '<small class="pull-left text-navy">1m ago</small>'
+		+ '<strong>{{username}}</strong>'
+		+ '<p class="m-b-xs">{{content}}</p>'
+		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
+		+ '</div></div>';
+
 	$(document).ready(function() {
 		$('#chatForm').submit(function(e) {
 			e.preventDefault();
@@ -20,12 +43,15 @@
 		});
 		
 		// load recent messages
-		$.get(chatGetUrl, function(data) {
-			console.log(data);
+		
+		$.get(chatItemList.attr('data-get'), function(data) {
+			data.content.forEach(function(value, index) {
+				renderItem(value, true);
+			});
 		});
 	});
 		
-	function renderItem(itemData) {
+	function renderItem(itemData, inverseOrder) {
 		
 		var messageCount = chatItemList.children().size();
 		var template = '';
@@ -38,34 +64,18 @@
 			template = chatItemTemplateLeft;
 		}
 		
-		template = template.replace('{{content}}', itemData.content);
+		template = template
+					.replace('{{content}}', itemData.content)
+					.replace('{{msgid}}', itemData.uuid)
+					.replace('{{username}}', itemData.sender.DisplayName);
 		
-		chatItemList.append(template);
+		if(inverseOrder) {
+			chatItemList.prepend(template);
+		}
+		else {
+			chatItemList.append(template);			
+		}
 	}
-	
-	var chatItemList = $('.chat-activity-list');
-	var chatGetUrl = chatItemList.attr('data-get');
-	var chatItemTemplateLeft = '<div class="chat-element">'
-		+ '<a href="#" class="pull-left">'
-		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
-		+ '</a>'
-		+ '<div class="media-body ">'
-		+ '<small class="pull-right text-navy">1m ago</small>'
-		+ '<strong>Mike Smith</strong>'
-		+ '<p class="m-b-xs">{{content}}</p>'
-		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
-		+ '</div></div>';
-		
-	var chatItemTemplateRight = '<div class="chat-element right">'
-		+ '<a href="#" class="pull-right">'
-		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
-		+ '</a>'
-		+ '<div class="media-body text-right">'
-		+ '<small class="pull-left text-navy">1m ago</small>'
-		+ '<strong>Mike Smith</strong>'
-		+ '<p class="m-b-xs">{{content}}</p>'
-		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
-		+ '</div></div>';
 </script>
 <div class="ibox float-e-margins">
 	<div class="ibox-title">	

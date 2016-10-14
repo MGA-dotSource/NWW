@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.web.SortDefault;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -43,7 +43,7 @@ public class MessengerEndpoint {
 	@RequestMapping(method = RequestMethod.GET)
 	public CompletionStage<Page<ChatMessage>> getMessages(
 			@RequestParam(defaultValue = "0", required = false) Long lastRequest,
-			@SortDefault(value = "lastModified", direction = Direction.DESC) Pageable p) {
+			@PageableDefault(size = 5, sort = "lastModified", direction = Direction.DESC) Pageable p) {
 		return CompletableFuture.supplyAsync(() -> {
 			return chatMessageRepository.findByLastModifiedAfter(Date.from(Instant.ofEpochMilli(lastRequest)), p);
 		});
