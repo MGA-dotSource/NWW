@@ -408,7 +408,7 @@ public class SupplierController extends AbstractApplicationController {
 				Page<? extends Supplier> supplierPage = null;
 				
 				// filter by approval state if user is not the current user or current user is not admin
-				if(currentUser.getUUID().equals(u.getUUID()) || populateCurrentUser().isAdmin()) {
+				if(currentUser.getUUID().equals(u.getUUID()) || currentUser.isAdmin()) {
 					supplierPage = new PageImpl<>(suppliers, new PageRequest(page, pageSize), suppliers.size());
 				}
 				else {
