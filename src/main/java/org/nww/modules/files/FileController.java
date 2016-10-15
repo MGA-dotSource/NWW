@@ -84,6 +84,7 @@ public class FileController extends AbstractController {
 				File f = getFileMgr().getFile(fi);
 				
 				response.setContentType(fi.getContentType());
+				response.setContentLengthLong(fi.getSize());
 				
 				return new FileSystemResource(f);
 			}
