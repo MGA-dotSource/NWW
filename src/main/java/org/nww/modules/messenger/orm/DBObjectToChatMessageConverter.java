@@ -10,10 +10,12 @@ import org.nww.modules.users.orm.UserManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
+import org.springframework.stereotype.Component;
 
 import com.mongodb.DBObject;
 
 @ReadingConverter
+@Component
 public class DBObjectToChatMessageConverter implements Converter<DBObject, ChatMessage> {
 
 	@Autowired
@@ -29,7 +31,7 @@ public class DBObjectToChatMessageConverter implements Converter<DBObject, ChatM
 		User u = userManager.findOne(userId);
 		
 		return ChatMessage.of(
-				(String)source.get("_id"), 
+				source.get("_id").toString(), 
 				u, 
 				(String)source.get("content"), 
 				(Date)source.get("lastModified"));

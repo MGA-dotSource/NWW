@@ -1,26 +1,29 @@
 <script type="text/javascript">
 	var chatItemList = $('.chat-activity-list');
 	var chatItemTemplateLeft = '<div class="chat-element" data-msgid="{{msgid}}">'
-		+ '<a href="#" class="pull-left">'
+		+ '<a href="/network/users/{{userid}}/" class="pull-left">'
 		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
 		+ '</a>'
 		+ '<div class="media-body ">'
 		+ '<small class="pull-right text-navy">1m ago</small>'
-		+ '<strong>{{username}}</strong>'
+		+ '<a href="/network/users/{{userid}}/"><strong>{{username}}</strong></a>'
 		+ '<p class="m-b-xs">{{content}}</p>'
 		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
 		+ '</div></div>';
 		
 	var chatItemTemplateRight = '<div class="chat-element right" data-msgid="{{msgid}}">'
-		+ '<a href="#" class="pull-right">'
+		+ '<a href="/network/users/{{userid}}/" class="pull-right">'
 		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
 		+ '</a>'
 		+ '<div class="media-body text-right">'
 		+ '<small class="pull-left text-navy">1m ago</small>'
-		+ '<strong>{{username}}</strong>'
+		+ '<a href="/network/users/{{userid}}/"><strong>{{username}}</strong></a>'
 		+ '<p class="m-b-xs">{{content}}</p>'
 		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
 		+ '</div></div>';
+		
+	var chatReloadIntervalId = '';
+	var chatReloadRunning = false;
 
 	$(document).ready(function() {
 		$('#chatForm').submit(function(e) {
@@ -48,9 +51,26 @@
 			data.content.forEach(function(value, index) {
 				renderItem(value, true);
 			});
+			
+			window.setInterval(getNewItems, 5000);	
 		});
 	});
 		
+	function getNewItems() {
+		if(!chatReloadRunning) {
+			chatReloadRunning = true;
+			
+			// need to handle paging and last call tmp here
+			$.get(chatItemList.attr('data-get'), function(data) {
+				data.content.forEach(function(value, index) {
+					renderItem(value, true);
+					
+					chatReloadRunning = false;
+				});
+			}
+		}
+	}
+	
 	function renderItem(itemData, inverseOrder) {
 		
 		var messageCount = chatItemList.children().size();
@@ -67,7 +87,8 @@
 		template = template
 					.replace('{{content}}', itemData.content)
 					.replace('{{msgid}}', itemData.uuid)
-					.replace('{{username}}', itemData.sender.DisplayName);
+					.replace('{{userid}}', itemData.sender.uuid)
+					.replace('{{username}}', itemData.sender.displayName);
 		
 		if(inverseOrder) {
 			chatItemList.prepend(template);
