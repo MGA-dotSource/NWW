@@ -14,7 +14,7 @@
 						<img alt="image" class="img-circle profile-img-sm" th:src="@{/img/teaser/user.png}"/>
 					</span>
 					
-                    <a data-toggle="dropdown" class="dropdown-toggle" th:href="@{/network/users/{name}/(name = ${CurrentUser.Username})}">
+                    <a data-toggle="dropdown" class="dropdown-toggle" th:href="@{/network/users/{userid}/(userid = ${CurrentUser.UUID})}">
 						<span class="clear">
 							<span class="block m-t-xs">
 								<strong class="font-bold" th:text="${CurrentUser.DisplayName}">Anzeigename</strong>
@@ -24,11 +24,11 @@
 					</a>
 					<ul class="dropdown-menu animated m-t-xs">
 						<li>
-							<a th:href="@{/network/users/{name}/(name = ${CurrentUser.Username})}">Mein Profil</a>
+							<a th:href="@{/network/users/{userid}/(userid = ${CurrentUser.UUID})}">Mein Profil</a>
 						</li>
 						<li class="divider"></li>
 						<li>
-							<a th:href="@{/network/users/{name}/editCredentials (name = ${CurrentUser.Username})}">Zugangsdaten bearbeiten</a>
+							<a th:href="@{/network/users/{userid}/editCredentials (userid = ${CurrentUser.UUID})}">Zugangsdaten bearbeiten</a>
 						</li>
 					</ul>
 				</div>
