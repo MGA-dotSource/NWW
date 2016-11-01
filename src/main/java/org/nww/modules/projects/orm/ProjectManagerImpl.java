@@ -8,13 +8,13 @@ import java.util.List;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.common.lang3.StringUtils;
 import org.nww.core.system.AbstractPersistentObjectManager;
 import org.nww.modules.suppliers.orm.Supplier;
 import org.nww.modules.users.orm.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.util.StringUtils;
 
 /**
  * Default implementation of the {@link ProjectManager} interface.

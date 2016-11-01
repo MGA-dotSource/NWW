@@ -17,8 +17,8 @@ public class ES_UserRepositoryImpl implements ES_UserRepositoryCustom {
 	@Override
 	public Page<ES_User> findUsers(String q, Pageable p) {
 		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
-				.should(QueryBuilders.fuzzyLikeThisQuery(ES_User.fieldNamesBoosted).likeText(q).boost(2f))
-				.should(QueryBuilders.fuzzyLikeThisQuery(ES_User.fieldNamesRegular).likeText(q));
+				.should(QueryBuilders.moreLikeThisQuery(ES_User.fieldNamesBoosted).addLikeText(q).boost(2f))
+				.should(QueryBuilders.moreLikeThisQuery(ES_User.fieldNamesRegular).addLikeText(q));
 		
 		SearchQuery query = new NativeSearchQuery(queryBuilder).setPageable(p);
 		query.addIndices(ES_User.INDEX_NAME);

@@ -17,8 +17,8 @@ public class ES_PinboardEntryRepositoryImpl implements ES_PinboardEntryRepositor
 	@Override
 	public Page<ES_PinboardEntry> findPinboardEntries(String q, Pageable p) {
 		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
-				.should(QueryBuilders.fuzzyLikeThisQuery(ES_PinboardEntry.fieldNamesBoosted).likeText(q).boost(2f))
-				.should(QueryBuilders.fuzzyLikeThisQuery(ES_PinboardEntry.fieldNamesRegular).likeText(q));
+				.should(QueryBuilders.moreLikeThisQuery(ES_PinboardEntry.fieldNamesBoosted).addLikeText(q).boost(2f))
+				.should(QueryBuilders.moreLikeThisQuery(ES_PinboardEntry.fieldNamesRegular).addLikeText(q));
 		
 		SearchQuery query = new NativeSearchQuery(queryBuilder).setPageable(p);
 		query.addIndices(ES_PinboardEntry.INDEX_NAME);

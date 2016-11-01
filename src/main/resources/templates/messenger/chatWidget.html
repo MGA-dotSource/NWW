@@ -1,118 +1,34 @@
-<script type="text/javascript">
-	var chatItemList = $('.chat-activity-list');
-	var chatItemTemplateLeft = '<div class="chat-element" data-msgid="{{msgid}}">'
-		+ '<a href="/network/users/{{userid}}/" class="pull-left">'
-		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
-		+ '</a>'
-		+ '<div class="media-body ">'
-		+ '<small class="pull-right text-navy">1m ago</small>'
-		+ '<a href="/network/users/{{userid}}/"><strong>{{username}}</strong></a>'
-		+ '<p class="m-b-xs">{{content}}</p>'
-		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
-		+ '</div></div>';
-		
-	var chatItemTemplateRight = '<div class="chat-element right" data-msgid="{{msgid}}">'
-		+ '<a href="/network/users/{{userid}}/" class="pull-right">'
-		+ '<img alt="image" class="img-circle" src="img/a2.jpg" />'
-		+ '</a>'
-		+ '<div class="media-body text-right">'
-		+ '<small class="pull-left text-navy">1m ago</small>'
-		+ '<a href="/network/users/{{userid}}/"><strong>{{username}}</strong></a>'
-		+ '<p class="m-b-xs">{{content}}</p>'
-		+ '<small class="text-muted">Today 4:21 pm - 12.06.2014</small>'
-		+ '</div></div>';
-		
-	var chatReloadIntervalId = '';
-	var chatReloadRunning = false;
-
-	$(document).ready(function() {
-		$('#chatForm').submit(function(e) {
-			e.preventDefault();
-			e.stopPropagation();
-			
-			var action = $(this).attr('action');
-			$.ajax({
-				url: action,
-				method: 'POST',
-				data: $(this).serialize(),
-				success: function(data, status, jqXHR) {
-					renderItem(data);
-					$('#chatForm textarea').val('').focus();
-				},
-				error: function(jqXHR, textStatus, errorThrown) {
-					console.log(textStatus);
-				}
-			});
-		});
-		
-		// load recent messages
-		
-		$.get(chatItemList.attr('data-get'), function(data) {
-			data.content.forEach(function(value, index) {
-				renderItem(value, true);
-			});
-			
-			window.setInterval(getNewItems, 5000);	
-		});
-	});
-		
-	function getNewItems() {
-		if(!chatReloadRunning) {
-			chatReloadRunning = true;
-			
-			// need to handle paging and last call tmp here
-			$.get(chatItemList.attr('data-get'), function(data) {
-				data.content.forEach(function(value, index) {
-					renderItem(value, true);
-					
-					chatReloadRunning = false;
-				});
-			}
-		}
-	}
-	
-	function renderItem(itemData, inverseOrder) {
-		
-		var messageCount = chatItemList.children().size();
-		var template = '';
-		if(messageCount % 2 > 0) {
-			// odd rows
-			template = chatItemTemplateRight;
-		}
-		else {
-			// even rows
-			template = chatItemTemplateLeft;
-		}
-		
-		template = template
-					.replace('{{content}}', itemData.content)
-					.replace('{{msgid}}', itemData.uuid)
-					.replace('{{userid}}', itemData.sender.uuid)
-					.replace('{{username}}', itemData.sender.displayName);
-		
-		if(inverseOrder) {
-			chatItemList.prepend(template);
-		}
-		else {
-			chatItemList.append(template);			
-		}
-	}
-</script>
 <div class="ibox float-e-margins">
 	<div class="ibox-title">	
 		<h5>Netzwerk Chat</h5>
 	</div>
 	<div class="ibox-content">
 		<div>
-			<div class="chat-activity-list" th:attr="data-get=@{/api/messenger}">
+			<div class="chat-discussion" th:attr="data-socket=@{/api/messenger}">
+				<div th:each="msg, iterState : ${Messages}" class="chat-message" th:classappend="${iterState.odd} ? 'left' : 'right'">
+					<img th:alt="${msg.Sender.DisplayName}" class="message-avatar"
+							th:if="${msg.Sender.Profile != null AND msg.Sender.Profile.hasAttribute('ProfileImageUUID')}" 
+								th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(msg.Sender.Profile.getString('ProfileImageUUID'))} + '_61_61'__}" />
+						<i th:unless="${msg.Sender.Profile != null AND msg.Sender.Profile.hasAttribute('ProfileImageUUID')}"  
+								class="fa fa-user fa-4x message-avatar" 
+								th:title="${msg.Sender.DisplayName}"></i>
+					<div class="message">
+						<a class="message-author" href="#" th:text="${msg.Sender.DisplayName}"></a>
+						<span class="message-date" th:text="${#dates.format(msg.lastModified, 'dd.MMM.yyyy HH:mm')}"> Mon Jan 26 2015 - 18:39:23 </span>
+						<span class="message-content" th:utext="${msg.Content}">
+							Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.
+						</span>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="chat-form">
 			<form th:action="@{/api/messenger}" method="POST" id="chatForm" role="form">
 				<input type="hidden" th:value="${CurrentUser.UUID}" name="userId"/>
-				<div class="form-group">
-					<textarea class="form-control" name="content" placeholder="Nachricht"></textarea>
+				<div class="form-group m-b-xs">
+					<textarea class="form-control" id="newChatMessage" name="content" placeholder="Nachricht"></textarea>
 				</div>
+				<p class="pull-left m-l-md">Drücke Strg + Enter zum Senden</p>
 				<div class="text-right">
 					<button type="submit" class="btn btn-sm btn-primary m-t-n-xs">
 						<strong>Senden</strong>
@@ -122,3 +38,6 @@
 		</div>
 	</div>
 </div>
+<script type="text/javascript" th:inline="javascript">
+	$('.chat-discussion').scrollTop(999999);
+</script>

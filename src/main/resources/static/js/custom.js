@@ -14,7 +14,6 @@ function fixedEncodeURIComponent (str) {
 	});
 }
 
-
 $(document).ready(function() {
 	formHandler.init();
 	modalHandler.init();

@@ -28,8 +28,8 @@ public class ES_SupplierRepositoryImpl implements ES_SupplierRepositoryCustom {
 	@Override
 	public Page<ES_Supplier> findSuppliers(String q, Pageable p) {
 		QueryBuilder queryBuilder = QueryBuilders.boolQuery()
-				.should(QueryBuilders.fuzzyLikeThisQuery(ES_Supplier.fieldNamesBoosted).likeText(q).boost(2f))
-				.should(QueryBuilders.fuzzyLikeThisQuery(ES_Supplier.fieldNamesRegular).likeText(q));
+				.should(QueryBuilders.moreLikeThisQuery(ES_Supplier.fieldNamesBoosted).addLikeText(q).boost(2f))
+				.should(QueryBuilders.moreLikeThisQuery(ES_Supplier.fieldNamesRegular).addLikeText(q));
 		
 		SearchQuery query = new NativeSearchQuery(queryBuilder).setPageable(p);
 		query.addIndices(ES_Supplier.INDEX_NAME);

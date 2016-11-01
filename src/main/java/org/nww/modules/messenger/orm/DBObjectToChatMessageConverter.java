@@ -7,7 +7,6 @@ import java.util.Date;
 
 import org.nww.modules.users.orm.User;
 import org.nww.modules.users.orm.UserManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.data.convert.ReadingConverter;
 import org.springframework.stereotype.Component;
@@ -18,8 +17,8 @@ import com.mongodb.DBObject;
 @Component
 public class DBObjectToChatMessageConverter implements Converter<DBObject, ChatMessage> {
 
-	@Autowired
 	private UserManager userManager;
+	
 	
 	/* (non-Javadoc)
 	 * @see org.springframework.core.convert.converter.Converter#convert(java.lang.Object)

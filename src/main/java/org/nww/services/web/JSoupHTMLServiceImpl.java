@@ -5,11 +5,11 @@ package org.nww.services.web;
 
 import java.util.Optional;
 
-import org.elasticsearch.common.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.util.StringUtils;
 
 /**
  * An {@link HTMLService} implementation using the Jsoup framework.
