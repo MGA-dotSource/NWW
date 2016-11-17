@@ -30,6 +30,10 @@ jar {
 	version = project.version
 }
 
+springBoot  {
+	buildInfo()
+}
+
 repositories {
 	maven {
 		url nwwNexusUrl
