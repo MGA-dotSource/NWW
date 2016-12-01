@@ -576,6 +576,21 @@ public class UserController extends AbstractApplicationController {
 		return REDIRECT_TO_USERLIST;
 	}
 	
+	@RequestMapping(value = "/irischatimages/{userId}/", method = RequestMethod.GET)
+	public CompletionStage<String> showProfileImage(
+			@PathVariable String userId, 
+			Model model) {
+		return CompletableFuture.supplyAsync(() -> {
+			User u = getUserManager().findOne(userId);
+			
+			if(u.hasProfile() && u.getProfile().hasAttribute("")) {
+				return "redirect:/files/" + fileMgr.createDownloadUrlSegment(u.getProfile().getString("ProfileImageUUID")) + "_32_32";
+			}
+			
+			return "common/empty";
+		});
+	}
+	
 	/**
 	 * Checks the passed data for changes that will require a login after they got successfully changed.
 	 * @param u the original user data
