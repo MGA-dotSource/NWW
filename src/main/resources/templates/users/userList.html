@@ -118,7 +118,7 @@
                                        		Bearbeiten
                                        	</a>
                                        	<a th:if="${CurrentUser.isAdmin() OR user == CurrentUser}"
-                                        		th:href="@{/network/users/{userId}/delete (userId = ${user.UUID})}"
+                                        		th:href="@{/network/users/{userId}/remove (userId = ${user.UUID})}"
                                         		data-toggle="modal" data-target="#modal" 
                                         		class="btn btn-danger btn-sm m-l-sm"
                                         		title="Benutzer löschen">

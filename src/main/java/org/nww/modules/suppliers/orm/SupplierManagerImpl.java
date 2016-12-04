@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
-import org.elasticsearch.common.lang3.StringUtils;
 import org.nww.core.data.ExtensiblePersistentObject;
 import org.nww.core.system.AbstractPersistentObjectManager;
 import org.nww.services.web.EmailService;
@@ -133,7 +132,7 @@ public class SupplierManagerImpl extends AbstractPersistentObjectManager<Supplie
 	 */
 	@Override
 	public Supplier findByName(String name) {
-		return getRepository().findByName(StringUtils.trim(name));
+		return getRepository().findByName(name.trim());
 	}
 	
 	/*

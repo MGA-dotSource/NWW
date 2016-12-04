@@ -1,8 +1,14 @@
-import org.tmatesoft.svn.core.wc.*
+group 'org.nww'
+version '1.0.0'
+
+ext {
+	artifactId = 'NetzwerkWohnen'
+	nwwNexusUrl = 'http://81.169.212.240:8081/nexus/content/repositories/NetzwerkWohnen/'
+}
 
 buildscript {
     ext {
-        springBootVersion = '1.2.6.RELEASE'
+        springBootVersion = '1.4.1.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -10,35 +16,40 @@ buildscript {
     }
     dependencies {
         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
-        classpath("io.spring.gradle:dependency-management-plugin:0.5.2.RELEASE")
     }
 }
 
 apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'spring-boot' 
-apply plugin: 'io.spring.dependency-management' 
+apply plugin: 'maven'
 apply plugin: 'jacoco'
 
 jar {
-	baseName = 'NetzwerkWohnen'
-    version = file('version.txt').text
+	baseName = artifactId
+	version = project.version
 }
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+
+springBoot  {
+	buildInfo()
+}
 
 repositories {
-    mavenCentral()
+	maven {
+		url nwwNexusUrl
+	}
+	mavenCentral()
 }
 
 configurations {
     providedRuntime
+    deployerJars
 }
 
 dependencyManagement {
-    imports {
-        mavenBom 'io.spring.platform:platform-bom:2.0.0.RELEASE'
-    }
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:Camden.RELEASE"
+	}
 }
 
 dependencies {
@@ -53,9 +64,16 @@ dependencies {
     compile("io.github.jpenren:thymeleaf-spring-data-dialect:2.1.1")
     compile("org.springframework.boot:spring-boot-starter-web")    
     compile("org.springframework.boot:spring-boot-starter-actuator")
+	compile("org.springframework.boot:spring-boot-starter-websocket")
+	compile('org.springframework.cloud:spring-cloud-starter-eureka')
+	compile('org.springframework.cloud:spring-cloud-starter-feign')
     
     compile("org.jsoup:jsoup:1.8.3")
-    
+    /*
+    compile("org.webjars:webjars-locator")
+    compile("org.webjars:sockjs-client:1.0.2")
+    compile("org.webjars:stomp-websocket:2.3.3")
+    */
     providedRuntime("org.springframework.boot:spring-boot-starter-tomcat")
     
     testCompile('junit:junit')
@@ -63,6 +81,7 @@ dependencies {
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 	testCompile('org.mockito:mockito-all:1.8.4')
 	
+	deployerJars("org.apache.maven.wagon:wagon-http:2.7")
 }
 
 
@@ -90,4 +109,26 @@ jacocoTestReport {
     reports {
         xml.enabled true
     }
+}
+
+uploadArchives {
+	dependsOn assemble
+	repositories {
+		mavenDeployer {
+			configuration = configurations.deployerJars
+
+			repository(url: nwwNexusUrl) {
+				authentication(
+						userName: nexusUser,
+						password: nexusPassword
+				)
+			}
+
+			pom {
+				groupId = project.group
+				artifactId = artifactId
+				version = project.version
+			}
+		}
+	}
 }

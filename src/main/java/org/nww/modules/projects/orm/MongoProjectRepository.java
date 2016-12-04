@@ -5,7 +5,6 @@ package org.nww.modules.projects.orm;
 
 import java.util.List;
 
-import org.elasticsearch.common.lang3.StringUtils;
 import org.nww.core.data.mongo.AbstractMongoPersistentObjectRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -33,7 +32,7 @@ public class MongoProjectRepository extends AbstractMongoPersistentObjectReposit
 	 */
 	@Override
 	public ProjectImpl findByNameAndOwner(String name, String ownerUUID) {
-		Query q = new Query(Criteria.where("name").is(StringUtils.trim(name)).and("ownerUUID").is(ownerUUID));
+		Query q = new Query(Criteria.where("name").is(name.trim()).and("ownerUUID").is(ownerUUID));
 		
 		return getMongoOperations().findOne(q, getEntityClass());
 	}

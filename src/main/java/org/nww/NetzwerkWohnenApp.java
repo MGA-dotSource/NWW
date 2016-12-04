@@ -6,6 +6,7 @@ package org.nww;
 import org.nww.modules.suppliers.orm.SupplierController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -22,6 +23,7 @@ import org.springframework.web.util.UrlPathHelper;
 @ComponentScan("org.nww")
 @EnableScheduling
 @EnableMongoAuditing
+@EnableEurekaClient
 public class NetzwerkWohnenApp extends WebMvcConfigurerAdapter {
 
 	/**
