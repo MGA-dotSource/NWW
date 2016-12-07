@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="Gradle: io.github.jpenren:thymeleaf-spring-data-dialect:2.1.1">
+    <CLASSES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.github.jpenren/thymeleaf-spring-data-dialect/2.1.1/cefb58f3aa4f7d9dae3cbe5675462c8cbf87fe9c/thymeleaf-spring-data-dialect-2.1.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/io.github.jpenren/thymeleaf-spring-data-dialect/2.1.1/934f50484299d2c30d8d0421729cf2494d83ac82/thymeleaf-spring-data-dialect-2.1.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

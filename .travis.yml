@@ -1,4 +1,6 @@
 language: java
+services:
+  - docker
 jdk:
   - oraclejdk8
 notifications:
@@ -7,5 +9,9 @@ notifications:
       - business@mircogatz.de
     on_success: change
     on_failure: always
+before_install:
+  - chmod +x gradlew
+  - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+script: ./gradlew buildDocker
 after_success:
   - bash <(curl -s https://codecov.io/bash)

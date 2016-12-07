@@ -1,9 +1,8 @@
 group 'org.nww'
-version '1.0.0'
+version '1.1.0'
 
 ext {
 	artifactId = 'NetzwerkWohnen'
-	nwwNexusUrl = 'http://81.169.212.240:8081/nexus/content/repositories/NetzwerkWohnen/'
 }
 
 buildscript {
@@ -15,10 +14,12 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}") 
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath("se.transmode.gradle:gradle-docker:1.2") 
     }
 }
 
+apply plugin: 'docker'
 apply plugin: 'java'
 apply plugin: 'eclipse-wtp'
 apply plugin: 'spring-boot' 
@@ -35,9 +36,6 @@ springBoot  {
 }
 
 repositories {
-	maven {
-		url nwwNexusUrl
-	}
 	mavenCentral()
 }
 
@@ -117,7 +115,13 @@ uploadArchives {
 		mavenDeployer {
 			configuration = configurations.deployerJars
 
-			repository(url: nwwNexusUrl) {
+			repository(url: nexusUrl) {
+				authentication(
+						userName: nexusUser,
+						password: nexusPassword
+				)
+			}
+			snapshotRepository(url: nexusUrl) {
 				authentication(
 						userName: nexusUser,
 						password: nexusPassword
@@ -129,6 +133,22 @@ uploadArchives {
 				artifactId = artifactId
 				version = project.version
 			}
+		}
+	}
+}
+
+task buildDocker(type: Docker, dependsOn: uploadArchives) {
+	push = true
+	applicationName = artifactId
+	baseImage = dockerBaseImage
+	addFile(artifactId + "-" + project.version + ".jar", "/application.jar")
+	exposePort(dockerExposePort.toInteger())
+	defaultCommand(["java", "-Xmx" + dockerXmx, "-jar", "/application.jar"])
+
+	doFirst {
+		copy {
+			from jar
+			into stageDir
 		}
 	}
 }
