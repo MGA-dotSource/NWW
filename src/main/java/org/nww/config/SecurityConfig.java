@@ -38,7 +38,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	}
 
 	@Autowired
-	MongoAuthenticationProvider mongoAuthenticationProvider;
+	private MongoAuthenticationProvider mongoAuthenticationProvider;
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -56,7 +56,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 			.antMatchers("/api/**").permitAll()
 			.antMatchers("/admin/**").hasAnyRole(ADMIN_USERS)
 			.and()
-				.formLogin().loginPage("/login").defaultSuccessUrl("/network").failureUrl("/login?error=f")
+				.formLogin().loginPage("/login")
+					.successHandler(NwwAuthenticationSuccessHandler.of("/network"))
+					.failureHandler(NwwAuthenticationFailureHandler.of("/login?error=f"))
 				.usernameParameter("username").passwordParameter("password")
 			.and()
 				.logout()
