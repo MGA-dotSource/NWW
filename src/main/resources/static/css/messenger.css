@@ -1,0 +1,15 @@
+.iris-flex-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-content: stretch;
+}
+
+.iris-btn-submit {
+    width: 75px;
+    height: 35px;
+}
+
+.iris-message-input {
+    width: 100%;
+}

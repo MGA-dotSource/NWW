@@ -1,0 +1,13 @@
+<div th:each="message, iterStat : ${ReversedMessages}" class="chat-message">
+    <a th:href="@{/network/users/{userId}/ (userId = ${message.Sender.UUID})}">
+	    <th:block th:include="users/inc/profileImages :: messenger (${message.Sender})"></th:block>
+	</a>
+    <div class="message">
+        <a class="message-author" href="#" th:text="${message.Sender.DisplayName}"> Michael Smith </a>
+        <span class="message-date" th:text="${#dates.format(message.CreationDate, 'dd.MM.yyyy - HH:mm')}">11.12.2016 - 02:59</span>
+        <span class="message-content" th:utext="${message.Content.Text}"></span>
+    </div>
+</div>
+<div id="iris-update-notification" class="hidden text-center" th:attr="data-iris-update-url = @{/messenger/widget/{originDate}/updates/ (originDate = ${OriginDate.Time})}">
+    <i class="fa fa-spinner fa-pulse fa-2x"></i>
+</div>

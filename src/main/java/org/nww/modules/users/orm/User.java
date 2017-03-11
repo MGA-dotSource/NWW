@@ -2,7 +2,7 @@ package org.nww.modules.users.orm;
 
 import java.util.List;
 
-import org.nww.core.data.PersistentObject;
+import org.nww.core.data.ExtensiblePersistentObject;
 import org.nww.modules.profiles.orm.Profile;
 
 /**
@@ -10,7 +10,7 @@ import org.nww.modules.profiles.orm.Profile;
  * @author mga
  *
  */
-public interface User extends PersistentObject {
+public interface User extends ExtensiblePersistentObject {
 
 	public static final String FIELD_PROFILE_UUID = "profileUUID";
 	

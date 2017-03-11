@@ -91,6 +91,7 @@
                                     </td>
 									<td>
 										<a th:href="@{/network/users/{userid}/ (userid = ${user.UUID})}"
+												th:if="${user.hasProfile()}"
 												th:text="${user.Profile.Company}">
 											Firmenname
 										</a>

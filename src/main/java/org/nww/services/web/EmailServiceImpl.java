@@ -63,9 +63,10 @@ public class EmailServiceImpl implements EmailService {
 	@Override
 	public boolean sendMail(String[] to, String from, String subject, String message) {
 		MimeMessage mm = ((JavaMailSender)getMailSender()).createMimeMessage();
-		
-		MimeMessageHelper mmh = new MimeMessageHelper(mm);
 		try {
+			mm.setHeader( "Content-Transfer-Encoding", "7bit" );
+			
+			MimeMessageHelper mmh = new MimeMessageHelper(mm);
 			mmh.setTo(to);
 			mmh.setFrom(from);
 			mmh.setSubject(subject);

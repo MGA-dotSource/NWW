@@ -5,11 +5,11 @@
 <head>
 	<title th:fragment="title">Dashboard | NETZWERK wohnen</title>
 	<th:block th:fragment="styles">
-		<link th:href="@{/messenger/css/iris.css}" rel="stylesheet" />
+		<link th:href="@{/css/messenger.css}" rel="stylesheet" />
 	</th:block>
 	<th:block th:fragment="scripts">
 		<script th:src="@{/js/plugins/loadR/loadR.js}"></script>
-		<script th:src="@{/messenger/js/iris.js}"></script>
+		<script th:src="@{/js/messenger.js}"></script>
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$('[data-loadr]').loadR();
@@ -51,8 +51,8 @@
 			</div>
 			<div class="row">
 				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-					<div th:attr="data-loadr=@{/messenger/widget/ (uid = ${CurrentUser.UUID}, un = ${CurrentUser.Username}, udn = ${CurrentUser.DisplayName})}"></div>
-				</div>
+                <div th:attr="data-loadr=@{/messenger/widget/ (uid = ${CurrentUser.UUID})}"></div>
+            </div>
 				<div class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 					<div th:attr="data-loadr=@{/network/projects/widget/}"></div>
 				</div>

@@ -22,3 +22,9 @@
 			th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_18_18'__}" />
 	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder xxs" th:title="${User.DisplayName}"></i>
 </th:block>
+<th:block th:fragment="messenger (User)">
+	<img th:alt="${User.DisplayName}" class="message-avatar"
+			th:if="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}" 
+			th:src="@{__'/files' + ${@FileManager.createDownloadUrlSegment(User.Profile.getString('ProfileImageUUID'))} + '_48_48'__}" />
+	<i th:unless="${User.Profile != null AND User.Profile.hasAttribute('ProfileImageUUID')}"  class="fa fa-user user-img placeholder xxs" th:title="${User.DisplayName}"></i>
+</th:block>

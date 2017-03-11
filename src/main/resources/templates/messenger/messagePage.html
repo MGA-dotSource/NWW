@@ -1,0 +1,15 @@
+<div th:if="${Messages.hasNext()}">
+    <a th:href="@{/messenger/widget/{originDate}/{nextPageNumber}/ (originDate = ${OriginDate.Time}, nextPageNumber = ${Messages.nextPageable().PageNumber})}"
+       id="iris-widget-paging-btn"
+       class="btn btn-info btn-block">Ältere Nachrichten laden</a>
+</div>
+<div th:each="message, iterStat : ${ReversedMessages}" class="chat-message" th:classappend="${iterStat.odd} ? 'left' : 'right'">
+	<a th:href="@{/network/users/{userId}/ (userId = ${message.Sender.UUID})}">
+	    <th:block th:include="users/inc/profileImages :: messenger (${message.Sender})"></th:block>
+	</a>
+    <div class="message">
+        <a class="message-author" th:href="@{/network/users/{userId}/ (userId = ${message.Sender.UUID})}" th:text="${message.Sender.DisplayName}"> Michael Smith </a>
+        <span class="message-date" th:text="${#dates.format(message.CreationDate, 'dd.MM.yyyy - HH:mm')}">11.12.2016 - 02:59</span>
+        <span class="message-content" th:utext="${message.Content.Text}"></span>
+    </div>
+</div>

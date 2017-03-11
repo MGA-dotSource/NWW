@@ -23,7 +23,6 @@ import org.springframework.web.util.UrlPathHelper;
 @ComponentScan("org.nww")
 @EnableScheduling
 @EnableMongoAuditing
-@EnableEurekaClient
 public class NetzwerkWohnenApp extends WebMvcConfigurerAdapter {
 
 	/**

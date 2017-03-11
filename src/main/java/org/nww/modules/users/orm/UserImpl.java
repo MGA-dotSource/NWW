@@ -6,7 +6,7 @@ package org.nww.modules.users.orm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.nww.core.data.AbstractPersistentObject;
+import org.nww.core.data.AbstractExtensiblePersistentObject;
 import org.nww.core.utils.ApplicationContextHelper;
 import org.nww.modules.profiles.orm.Profile;
 import org.nww.modules.profiles.orm.ProfileManager;
@@ -21,7 +21,7 @@ import org.springframework.util.StringUtils;
  *
  */
 @Document(collection = "users")
-public class UserImpl extends AbstractPersistentObject implements User {
+public class UserImpl extends AbstractExtensiblePersistentObject implements User {
 
 	@Indexed(unique = true)
 	private String username;

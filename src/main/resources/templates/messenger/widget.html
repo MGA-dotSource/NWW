@@ -1,0 +1,42 @@
+<div class="ibox chat-view">
+    <div class="ibox-title">
+        <h5>Netzwerk Chat</h5>
+    </div>
+    <div class="ibox-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="chat-discussion" th:attr="data-origin = ${OriginDate.Time}">
+                    <th:block th:replace="messenger/messagePage"></th:block>
+                    <div id="iris-update-notification" class="hidden text-center" th:attr="data-iris-update-url = @{/messenger/widget/{originDate}/updates/ (originDate = ${OriginDate.Time})}">
+                        <i class="fa fa-spinner fa-pulse fa-2x"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="chat-message-form">
+                    <form th:action="@{/api/messenger/actions/add.do}" method="post" name="iris-form" role="form">
+                        <input type="hidden" name="conversationId" value="main" />
+                        <input type="hidden" name="userId" th:value="${User.UUID}" />
+                        <div class="form-group iris-flex-container">
+                            <textarea class="message-input iris-flex-item iris-message-input"
+                                      name="message"
+                                      placeholder="Nachricht hier eingeben"></textarea>
+                            <button type="submit" class="btn btn-primary align-center m-l-xs iris-flex-item iris-btn-submit">
+                                <i class="fa fa-fw fa-send"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <small class="m-l-xs">Strg + Enter drücken um die Nachricht direkt zu versenden</small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    // make sure the latest message is always visible
+    $('.chat-discussion').scrollTop(10000);
+</script>
