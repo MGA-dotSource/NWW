@@ -2,7 +2,7 @@ group 'netzwerkwohnen'
 version '1.1.0'
 
 ext {
-	artifactId = 'NetzwerkWohnen'
+	artifactId = 'nww'
 }
 
 buildscript {
