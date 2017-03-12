@@ -12,6 +12,6 @@ notifications:
 before_install:
   - chmod +x gradlew
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
-script: ./gradlew buildDocker
+script: ./gradlew assemble
 after_success:
   - bash <(curl -s https://codecov.io/bash)
